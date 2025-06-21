@@ -8,5 +8,6 @@ public class Board {
 
     @Id
     private Long id;
+    private String title;
 
 }
