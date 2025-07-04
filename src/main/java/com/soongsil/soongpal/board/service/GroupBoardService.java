@@ -46,4 +46,12 @@ public class GroupBoardService {
         findBoard.update(GroupCreateReqDto.toEntity(groupCreateReqDto));
         return GroupResDto.from(findBoard);
     }
+
+    public GroupResDto deleteGroup(Long id) {
+        GroupBoard findBoard = groupBoardRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        groupBoardRepository.deleteById(id);
+        return GroupResDto.from(findBoard);
+    }
 }

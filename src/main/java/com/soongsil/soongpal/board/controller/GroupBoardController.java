@@ -43,4 +43,10 @@ public class GroupBoardController {
         GroupResDto dto = groupBoardService.updateGroup(id, groupCreateReqDto);
         return new ResponseEntity<>(new CommonResDto<>("공동구매 게시글 수정", dto), HttpStatus.OK);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<CommonResDto<GroupResDto>> deleteGroup(@PathVariable Long id) {
+        GroupResDto dto = groupBoardService.deleteGroup(id);
+        return new ResponseEntity<>(new CommonResDto<>("공동구매 게시글 삭제", dto), HttpStatus.OK);
+    }
 }
