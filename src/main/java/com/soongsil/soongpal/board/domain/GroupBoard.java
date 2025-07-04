@@ -3,8 +3,8 @@ package com.soongsil.soongpal.board.domain;
 import com.soongsil.soongpal.common.domain.BaseEntity;
 import jakarta.persistence.*;
 
-@Entity
 
+@Entity
 public class GroupBoard extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
