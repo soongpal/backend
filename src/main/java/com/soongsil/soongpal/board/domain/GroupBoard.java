@@ -24,4 +24,11 @@ public class GroupBoard extends BaseEntity {
     private String url;
 
     private String location;
+
+    public void update(GroupBoard group) {
+        this.title = group.getTitle();
+        this.content = group.getContent();
+        this.url = group.getUrl();
+        this.location = group.getLocation();
+    }
 }

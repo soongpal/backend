@@ -17,12 +17,12 @@ public class GroupCreateReqDto {
     private String url;
     private String location;
 
-    public static GroupBoard toEntity(GroupCreateReqDto dto) {
+    public static GroupBoard toEntity(GroupCreateReqDto groupCreateReqDto) {
         return GroupBoard.builder()
-                .title(dto.getTitle())
-                .content(dto.getContent())
-                .url(dto.getUrl())
-                .location(dto.getLocation())
+                .title(groupCreateReqDto.getTitle())
+                .content(groupCreateReqDto.getContent())
+                .url(groupCreateReqDto.getUrl())
+                .location(groupCreateReqDto.getLocation())
                 .build();
     }
 }

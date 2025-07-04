@@ -38,5 +38,9 @@ public class GroupBoardController {
         return new ResponseEntity<>(new CommonResDto<>("공동구매 게시글 상세 조회", dto), HttpStatus.OK);
     }
 
-
+    @PutMapping("/{id}")
+    public ResponseEntity<CommonResDto<GroupResDto>> updateGroup(@PathVariable Long id, @Valid @RequestBody GroupCreateReqDto groupCreateReqDto) {
+        GroupResDto dto = groupBoardService.updateGroup(id, groupCreateReqDto);
+        return new ResponseEntity<>(new CommonResDto<>("공동구매 게시글 수정", dto), HttpStatus.OK);
+    }
 }
