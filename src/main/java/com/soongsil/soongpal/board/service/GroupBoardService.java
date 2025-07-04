@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -28,5 +29,12 @@ public class GroupBoardService {
         return boards.stream()
                 .map(GroupResDto::from)
                 .toList();
+    }
+
+    public GroupResDto getGroupById(Long id) {
+        GroupBoard findBoard = groupBoardRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        return GroupResDto.from(findBoard);
     }
 }

@@ -32,6 +32,11 @@ public class GroupBoardController {
         return new ResponseEntity<>(new CommonResDto<>("모든 공동구매 게시글 조회", dto), HttpStatus.OK);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<CommonResDto<GroupResDto>> getGroupById(@PathVariable Long id) {
+        GroupResDto dto = groupBoardService.getGroupById(id);
+        return new ResponseEntity<>(new CommonResDto<>("공동구매 게시글 상세 조회", dto), HttpStatus.OK);
+    }
 
 
 }
