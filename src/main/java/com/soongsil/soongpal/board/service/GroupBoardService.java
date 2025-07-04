@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -19,5 +21,12 @@ public class GroupBoardService {
         GroupBoard board = GroupCreateReqDto.toEntity(groupCreateReqDto);
         groupBoardRepository.save(board);
         return GroupResDto.from(board);
+    }
+
+    public List<GroupResDto> getAllGroups() {
+        List<GroupBoard> boards = groupBoardRepository.findAll();
+        return boards.stream()
+                .map(GroupResDto::from)
+                .toList();
     }
 }

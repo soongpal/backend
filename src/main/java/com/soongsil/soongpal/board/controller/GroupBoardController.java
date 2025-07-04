@@ -8,10 +8,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RequiredArgsConstructor
@@ -24,8 +23,15 @@ public class GroupBoardController {
     @PostMapping
     public ResponseEntity<CommonResDto<GroupResDto>> createGroup(@Valid @RequestBody GroupCreateReqDto groupCreateReqDto) {
         GroupResDto dto = groupBoardService.createGroup(groupCreateReqDto);
-        return new ResponseEntity<>(new CommonResDto<>("공동구매 게시판 생성", dto), HttpStatus.CREATED);
+        return new ResponseEntity<>(new CommonResDto<>("공동구매 게시글 생성", dto), HttpStatus.CREATED);
     }
+
+    @GetMapping
+    public ResponseEntity<CommonResDto<List<GroupResDto>>> getAllGroups() {
+        List<GroupResDto> dto = groupBoardService.getAllGroups();
+        return new ResponseEntity<>(new CommonResDto<>("모든 공동구매 게시글 조회", dto), HttpStatus.OK);
+    }
+
 
 
 }
