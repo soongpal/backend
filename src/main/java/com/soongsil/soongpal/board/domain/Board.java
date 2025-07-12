@@ -25,6 +25,10 @@ public class Board extends BaseEntity {
 
     private String location;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private BoardStatus status;
+
     public void update(Board borad) {
         this.title = borad.getTitle();
         this.content = borad.getContent();
