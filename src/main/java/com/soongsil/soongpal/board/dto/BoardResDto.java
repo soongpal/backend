@@ -1,6 +1,6 @@
 package com.soongsil.soongpal.board.dto;
 
-import com.soongsil.soongpal.board.domain.GroupBoard;
+import com.soongsil.soongpal.board.domain.Board;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -13,13 +13,13 @@ public class BoardResDto {
     private String url;
     private String location;
 
-    public static BoardResDto from(GroupBoard groupBoard) {
+    public static BoardResDto from(Board board) {
         return BoardResDto.builder()
-                .id(groupBoard.getId())
-                .title(groupBoard.getTitle())
-                .content(groupBoard.getContent())
-                .url(groupBoard.getUrl())
-                .location(groupBoard.getLocation())
+                .id(board.getId())
+                .title(board.getTitle())
+                .content(board.getContent())
+                .url(board.getUrl())
+                .location(board.getLocation())
                 .build();
     }
 }
