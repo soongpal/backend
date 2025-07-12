@@ -1,6 +1,6 @@
 package com.soongsil.soongpal.board.dto;
 
-import com.soongsil.soongpal.board.domain.GroupBoard;
+import com.soongsil.soongpal.board.domain.Board;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
@@ -17,8 +17,8 @@ public class BoardCreateReqDto {
     private String url;
     private String location;
 
-    public static GroupBoard toEntity(BoardCreateReqDto boardCreateReqDto) {
-        return GroupBoard.builder()
+    public static Board toEntity(BoardCreateReqDto boardCreateReqDto) {
+        return Board.builder()
                 .title(boardCreateReqDto.getTitle())
                 .content(boardCreateReqDto.getContent())
                 .url(boardCreateReqDto.getUrl())
