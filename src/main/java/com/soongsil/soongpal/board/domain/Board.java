@@ -25,10 +25,10 @@ public class Board extends BaseEntity {
 
     private String location;
 
-    public void update(Board group) {
-        this.title = group.getTitle();
-        this.content = group.getContent();
-        this.url = group.getUrl();
-        this.location = group.getLocation();
+    public void update(Board borad) {
+        this.title = borad.getTitle();
+        this.content = borad.getContent();
+        this.url = borad.getUrl();
+        this.location = borad.getLocation();
     }
 }
