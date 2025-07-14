@@ -34,5 +34,6 @@ public class Board extends BaseEntity {
         this.content = board.getContent();
         this.url = board.getUrl();
         this.location = board.getLocation();
+        this.status = board.getStatus();
     }
 }
