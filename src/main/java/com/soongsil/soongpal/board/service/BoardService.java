@@ -20,7 +20,7 @@ public class BoardService {
     private final BoardRepository boardRepository;
 
     public BoardResDto createBoard(BoardCreateReqDto boardCreateReqDto) {
-        Board board = boardCreateReqDto.toEntity(boardCreateReqDto);
+        Board board = BoardCreateReqDto.toEntity(boardCreateReqDto);
         boardRepository.save(board);
         return BoardResDto.from(board);
     }
