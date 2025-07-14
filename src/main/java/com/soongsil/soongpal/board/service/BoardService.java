@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.swing.*;
 import java.util.stream.Collectors;
@@ -50,6 +51,7 @@ public class BoardService {
         return BoardResDto.from(findBoard);
     }
 
+    @Transactional
     public BoardResDto updateBoard(Long id, @Valid BoardUpdateReqDto boardUpdateReqDto) {
         Board findBoard = boardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
