@@ -1,7 +1,9 @@
 package com.soongsil.soongpal.board.controller;
 
+import com.soongsil.soongpal.board.domain.BoardStatus;
 import com.soongsil.soongpal.board.dto.BoardCreateReqDto;
 import com.soongsil.soongpal.board.dto.BoardResDto;
+import com.soongsil.soongpal.board.dto.BoardUpdateReqDto;
 import com.soongsil.soongpal.board.service.BoardService;
 import com.soongsil.soongpal.common.dto.CommonResDto;
 import jakarta.validation.Valid;
@@ -14,7 +16,7 @@ import java.util.List;
 
 
 @RequiredArgsConstructor
-@RequestMapping("/api/board-purchases")
+@RequestMapping("/api/board")
 @RestController
 public class BoardController {
 
@@ -23,30 +25,36 @@ public class BoardController {
     @PostMapping
     public ResponseEntity<CommonResDto<BoardResDto>> createBoard(@Valid @RequestBody BoardCreateReqDto BoardCreateReqDto) {
         BoardResDto dto = boardService.createBoard(BoardCreateReqDto);
-        return new ResponseEntity<>(new CommonResDto<>("공동구매 게시글 생성", dto), HttpStatus.CREATED);
+        return new ResponseEntity<>(new CommonResDto<>("게시글 생성", dto), HttpStatus.CREATED);
     }
 
     @GetMapping
     public ResponseEntity<CommonResDto<List<BoardResDto>>> getAllBoards() {
         List<BoardResDto> dto = boardService.getAllBoards();
-        return new ResponseEntity<>(new CommonResDto<>("모든 공동구매 게시글 조회", dto), HttpStatus.OK);
+        return new ResponseEntity<>(new CommonResDto<>("모든 게시글 조회", dto), HttpStatus.OK);
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<CommonResDto<List<BoardResDto>>> getBoardsByStatus(@RequestParam BoardStatus status) {
+        List<BoardResDto> dto = boardService.getBoardsByStatus(status); // 서비스 메서드 호출
+        return new ResponseEntity<>(new CommonResDto<>("상태별 게시글 조회", dto), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<CommonResDto<BoardResDto>> getBoardById(@PathVariable Long id) {
         BoardResDto dto = boardService.getBoardById(id);
-        return new ResponseEntity<>(new CommonResDto<>("공동구매 게시글 상세 조회", dto), HttpStatus.OK);
+        return new ResponseEntity<>(new CommonResDto<>("게시글 상세 조회", dto), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CommonResDto<BoardResDto>> updateBoard(@PathVariable Long id, @Valid @RequestBody BoardCreateReqDto BoardCreateReqDto) {
-        BoardResDto dto = boardService.updateBoard(id, BoardCreateReqDto);
-        return new ResponseEntity<>(new CommonResDto<>("공동구매 게시글 수정", dto), HttpStatus.OK);
+    public ResponseEntity<CommonResDto<BoardResDto>> updateBoard(@PathVariable Long id, @Valid @RequestBody BoardUpdateReqDto boardUpdateReqDto) {
+        BoardResDto dto = boardService.updateBoard(id, boardUpdateReqDto);
+        return new ResponseEntity<>(new CommonResDto<>("게시글 수정", dto), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<CommonResDto<BoardResDto>> deleteBoard(@PathVariable Long id) {
         BoardResDto dto = boardService.deleteBoard(id);
-        return new ResponseEntity<>(new CommonResDto<>("공동구매 게시글 삭제", dto), HttpStatus.OK);
+        return new ResponseEntity<>(new CommonResDto<>("게시글 삭제", dto), HttpStatus.OK);
     }
 }
