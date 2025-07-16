@@ -86,4 +86,12 @@ public class BoardController {
         BoardResDto dto = boardService.deleteBoard(id);
         return new ResponseEntity<>(new CommonResDto<>("게시글 삭제", dto), HttpStatus.OK);
     }
+
+    @GetMapping("/search")
+    @Parameter(name = "keyword", description = "조회할 게시글의 제목", required = true)
+    @Operation(summary = "제목으로 게시글 검색", description = "데이터베이스에서 키워드가 포함된 게시글 제목으로 검색합니다.")
+    public ResponseEntity<List<BoardResDto>> searchBoardsByTitle(@RequestParam String keyword) {
+        List<BoardResDto> searchBoards = boardService.searchBoardsByTitle(keyword);
+        return new ResponseEntity<>(searchBoards, HttpStatus.OK);
+    }
 }

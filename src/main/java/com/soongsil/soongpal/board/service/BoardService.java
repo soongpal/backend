@@ -66,4 +66,12 @@ public class BoardService {
         boardRepository.deleteById(id);
         return BoardResDto.from(findBoard);
     }
+
+    public List<BoardResDto> searchBoardsByTitle(String keyword) {
+        List<Board> searchBoards = boardRepository.findByTitleContainingIgnoreCase(keyword);
+
+        return searchBoards.stream()
+                .map(BoardResDto::from)
+                .collect(Collectors.toList());
+    }
 }
