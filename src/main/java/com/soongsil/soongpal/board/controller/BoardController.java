@@ -33,8 +33,8 @@ public class BoardController {
     @ApiResponse(responseCode = "201", description = "게시글 생성 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
     @ApiResponse(responseCode = "400", description = "잘못된 요청 게시글", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
     @Operation(method = "POST", summary = "새 게시글 생성", description = "사용자가 게시글 생성하기 위한 API")
-    public ResponseEntity<CommonResDto<BoardResDto>> createBoard(@Valid @RequestBody BoardCreateReqDto BoardCreateReqDto) {
-        BoardResDto dto = boardService.createBoard(BoardCreateReqDto);
+    public ResponseEntity<CommonResDto<BoardResDto>> createBoard(@Valid @RequestBody BoardCreateReqDto boardCreateReqDto) {
+        BoardResDto dto = boardService.createBoard(boardCreateReqDto);
         return new ResponseEntity<>(new CommonResDto<>("게시글 생성", dto), HttpStatus.CREATED);
     }
 
