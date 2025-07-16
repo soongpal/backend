@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.swing.*;
 import java.util.stream.Collectors;
 
 import java.util.List;
@@ -56,15 +55,7 @@ public class BoardService {
         Board findBoard = boardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
-        findBoard.update(
-                Board.builder()
-                        .title(boardUpdateReqDto.getTitle())
-                        .content(boardUpdateReqDto.getContent())
-                        .url(boardUpdateReqDto.getUrl())
-                        .location(boardUpdateReqDto.getLocation())
-                        .status(boardUpdateReqDto.getStatus())
-                        .build()
-        );
+        findBoard.update(boardUpdateReqDto.toEntity());
         return BoardResDto.from(findBoard);
     }
 
