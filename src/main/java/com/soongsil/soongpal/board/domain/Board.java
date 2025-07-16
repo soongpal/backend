@@ -27,13 +27,13 @@ public class Board extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private BoardStatus status;
+    private BoardCategory category;
 
     public void update(Board board) {
         this.title = board.getTitle();
         this.content = board.getContent();
         this.url = board.getUrl();
         this.location = board.getLocation();
-        this.status = board.getStatus();
+        this.category = board.getCategory();
     }
 }

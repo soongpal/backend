@@ -1,7 +1,7 @@
 package com.soongsil.soongpal.board.dto;
 
 import com.soongsil.soongpal.board.domain.Board;
-import com.soongsil.soongpal.board.domain.BoardStatus;
+import com.soongsil.soongpal.board.domain.BoardCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -32,7 +32,7 @@ public class BoardUpdateReqDto {
 
     @Schema(description = "수정할 게시글 상태", example = "USED", allowableValues = {"GROUP", "USED"})
     @NotNull
-    private BoardStatus status;
+    private BoardCategory category;
 
     public Board toEntity() {
         return Board.builder()
@@ -40,7 +40,7 @@ public class BoardUpdateReqDto {
                 .content(this.content)
                 .url(this.url)
                 .location(this.location)
-                .status(this.status)
+                .category(this.category)
                 .build();
     }
 }

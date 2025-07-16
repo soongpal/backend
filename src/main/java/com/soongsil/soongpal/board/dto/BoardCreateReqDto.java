@@ -1,7 +1,7 @@
 package com.soongsil.soongpal.board.dto;
 
 import com.soongsil.soongpal.board.domain.Board;
-import com.soongsil.soongpal.board.domain.BoardStatus;
+import com.soongsil.soongpal.board.domain.BoardCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,9 +27,9 @@ public class BoardCreateReqDto {
     @Schema(description = "모임 장소 또는 거래 위치 (선택 사항)", example = "기숙사 1층 로비")
     private String location;
 
-    @Schema(description = "게시글 상태", example = "GROUP", allowableValues = {"GROUP", "USED"})
+    @Schema(description = "게시글 카테고리 상태", example = "GROUP", allowableValues = {"GROUP", "USED"})
     @NotNull
-    private BoardStatus status;
+    private BoardCategory category;
 
     public static Board toEntity(BoardCreateReqDto boardCreateReqDto) {
         return Board.builder()
@@ -37,7 +37,7 @@ public class BoardCreateReqDto {
                 .content(boardCreateReqDto.getContent())
                 .url(boardCreateReqDto.getUrl())
                 .location(boardCreateReqDto.getLocation())
-                .status(boardCreateReqDto.getStatus())
+                .category(boardCreateReqDto.getCategory())
                 .build();
     }
 }

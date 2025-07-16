@@ -1,6 +1,6 @@
 package com.soongsil.soongpal.board.controller;
 
-import com.soongsil.soongpal.board.domain.BoardStatus;
+import com.soongsil.soongpal.board.domain.BoardCategory;
 import com.soongsil.soongpal.board.dto.BoardCreateReqDto;
 import com.soongsil.soongpal.board.dto.BoardResDto;
 import com.soongsil.soongpal.board.dto.BoardUpdateReqDto;
@@ -46,13 +46,13 @@ public class BoardController {
         return new ResponseEntity<>(new CommonResDto<>("모든 게시글 조회", dto), HttpStatus.OK);
     }
 
-    @GetMapping("/status")
-    @ApiResponse(responseCode = "200", description = "상태별 게시글 조회 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
-    @ApiResponse(responseCode = "400", description = "유효하지 않은 상태 값", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
-    @Parameter(name = "status", description = "조회할 게시글의 상태 (GROUP 또는 USED)", required = true)
-    @Operation(method = "GET", summary = "상태별 게시글 조회", description = "status[GROUP,USED]별 게시글 조회하기 위한 API")
-    public ResponseEntity<CommonResDto<List<BoardResDto>>> getBoardsByStatus(@RequestParam BoardStatus status) {
-        List<BoardResDto> dto = boardService.getBoardsByStatus(status); // 서비스 메서드 호출
+    @GetMapping("/category")
+    @ApiResponse(responseCode = "200", description = "카테고리 별 게시글 조회 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
+    @ApiResponse(responseCode = "400", description = "유효하지 않은 카테고리 값", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
+    @Parameter(name = "category", description = "조회할 게시글의 카테고리 상태 (GROUP 또는 USED)", required = true)
+    @Operation(method = "GET", summary = "카테고리 별 게시글 조회", description = "category[GROUP,USED]별 게시글 조회하기 위한 API")
+    public ResponseEntity<CommonResDto<List<BoardResDto>>> getBoardsByCategory(@RequestParam BoardCategory category) {
+        List<BoardResDto> dto = boardService.getBoardsByCategory(category); // 서비스 메서드 호출
         return new ResponseEntity<>(new CommonResDto<>("상태별 게시글 조회", dto), HttpStatus.OK);
     }
 

@@ -1,7 +1,7 @@
 package com.soongsil.soongpal.board.service;
 
 import com.soongsil.soongpal.board.domain.Board;
-import com.soongsil.soongpal.board.domain.BoardStatus;
+import com.soongsil.soongpal.board.domain.BoardCategory;
 import com.soongsil.soongpal.board.dto.BoardCreateReqDto;
 import com.soongsil.soongpal.board.dto.BoardResDto;
 import com.soongsil.soongpal.board.dto.BoardUpdateReqDto;
@@ -30,8 +30,8 @@ public class BoardService {
         return BoardResDto.from(board);
     }
 
-    public List<BoardResDto> getBoardsByStatus(BoardStatus status) {
-        return boardRepository.findByStatus(status).stream()
+    public List<BoardResDto> getBoardsByCategory(BoardCategory category) {
+        return boardRepository.findByCategory(category).stream()
                 .map(BoardResDto::from)
                 .collect(Collectors.toList());
     }
