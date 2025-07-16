@@ -97,6 +97,7 @@ public class BoardController {
     }
 
     @GetMapping("/status")
+    @Parameter(name = "status", description = "조회할 게시글의 거래 상태 (IN_PROGRESS 또는 COMPLETED)", required = true)
     @Operation(summary = "거래 상태별 게시글 조회", description = "특정 거래 상태(IN_PROGRESS, COMPLETED)의 게시글을 조회합니다.")
     public ResponseEntity<CommonResDto<List<BoardResDto>>> getBoardsByStatus(@RequestParam BoardStatus status) {
         List<BoardResDto> dto = boardService.getBoardsByStatus(status);
@@ -104,6 +105,8 @@ public class BoardController {
     }
 
     @GetMapping("/filter")
+    @Parameter(name = "category", description = "조회할 게시글의 카테고리 상태 (GROUP 또는 USED)", required = true)
+    @Parameter(name = "status", description = "조회할 게시글의 거래 상태 (IN_PROGRESS 또는 COMPLETED)", required = true)
     @Operation(summary = "카테고리별 거래 상태 게시글 조회", description = "특정 카테고리(GROUP, USED) 내에서 특정 거래 상태(IN_PROGRESS, COMPLETED)인 게시글을 조회합니다.")
     public ResponseEntity<CommonResDto<List<BoardResDto>>> getBoardsByCategoryAndStatus(@RequestParam BoardCategory category, @RequestParam BoardStatus status) {
         List<BoardResDto> dto = boardService.getBoardsByCategoryAndStatus(category, status);
