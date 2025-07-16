@@ -2,6 +2,7 @@ package com.soongsil.soongpal.board.dto;
 
 import com.soongsil.soongpal.board.domain.Board;
 import com.soongsil.soongpal.board.domain.BoardCategory;
+import com.soongsil.soongpal.board.domain.BoardStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -31,6 +32,10 @@ public class BoardCreateReqDto {
     @NotNull
     private BoardCategory category;
 
+    @Schema(description = "게시글의 현재 거래 상태", example = "IN_PROGRESS", allowableValues = {"IN_PROGRESS, COMPLETED"})
+    @NotNull
+    private BoardStatus status;
+
     public static Board toEntity(BoardCreateReqDto boardCreateReqDto) {
         return Board.builder()
                 .title(boardCreateReqDto.getTitle())
@@ -38,6 +43,7 @@ public class BoardCreateReqDto {
                 .url(boardCreateReqDto.getUrl())
                 .location(boardCreateReqDto.getLocation())
                 .category(boardCreateReqDto.getCategory())
+                .status(boardCreateReqDto.getStatus())
                 .build();
     }
 }

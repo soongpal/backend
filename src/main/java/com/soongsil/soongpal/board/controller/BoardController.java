@@ -1,6 +1,7 @@
 package com.soongsil.soongpal.board.controller;
 
 import com.soongsil.soongpal.board.domain.BoardCategory;
+import com.soongsil.soongpal.board.domain.BoardStatus;
 import com.soongsil.soongpal.board.dto.BoardCreateReqDto;
 import com.soongsil.soongpal.board.dto.BoardResDto;
 import com.soongsil.soongpal.board.dto.BoardUpdateReqDto;
@@ -87,11 +88,26 @@ public class BoardController {
         return new ResponseEntity<>(new CommonResDto<>("게시글 삭제", dto), HttpStatus.OK);
     }
 
-    @GetMapping("/search")
+    @GetMapping("/search/title")
     @Parameter(name = "keyword", description = "조회할 게시글의 제목", required = true)
     @Operation(summary = "제목으로 게시글 검색", description = "데이터베이스에서 키워드가 포함된 게시글 제목으로 검색합니다.")
     public ResponseEntity<List<BoardResDto>> searchBoardsByTitle(@RequestParam String keyword) {
         List<BoardResDto> searchBoards = boardService.searchBoardsByTitle(keyword);
         return new ResponseEntity<>(searchBoards, HttpStatus.OK);
     }
+
+    @GetMapping("/status")
+    @Operation(summary = "거래 상태별 게시글 조회", description = "특정 거래 상태(IN_PROGRESS, COMPLETED)의 게시글을 조회합니다.")
+    public ResponseEntity<CommonResDto<List<BoardResDto>>> getBoardsByStatus(@RequestParam BoardStatus status) {
+        List<BoardResDto> dto = boardService.getBoardsByStatus(status);
+        return new ResponseEntity<>(new CommonResDto<>("거래 상태별 게시글 조회", dto), HttpStatus.OK);
+    }
+
+    @GetMapping("/filter")
+    @Operation(summary = "카테고리별 거래 상태 게시글 조회", description = "특정 카테고리(GROUP, USED) 내에서 특정 거래 상태(IN_PROGRESS, COMPLETED)인 게시글을 조회합니다.")
+    public ResponseEntity<CommonResDto<List<BoardResDto>>> getBoardsByCategoryAndStatus(@RequestParam BoardCategory category, @RequestParam BoardStatus status) {
+        List<BoardResDto> dto = boardService.getBoardsByCategoryAndStatus(category, status);
+        return new ResponseEntity<>(new CommonResDto<>("카테고리별 거래 상태 게시글 조회", dto), HttpStatus.OK);
+    }
+
 }
