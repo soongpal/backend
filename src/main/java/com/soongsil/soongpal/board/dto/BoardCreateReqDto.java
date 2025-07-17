@@ -32,10 +32,6 @@ public class BoardCreateReqDto {
     @NotNull
     private BoardCategory category;
 
-    @Schema(description = "게시글의 현재 거래 상태", example = "IN_PROGRESS", allowableValues = {"IN_PROGRESS, COMPLETED"})
-    @NotNull
-    private BoardStatus status;
-
     public static Board toEntity(BoardCreateReqDto boardCreateReqDto) {
         return Board.builder()
                 .title(boardCreateReqDto.getTitle())
@@ -43,7 +39,7 @@ public class BoardCreateReqDto {
                 .url(boardCreateReqDto.getUrl())
                 .location(boardCreateReqDto.getLocation())
                 .category(boardCreateReqDto.getCategory())
-                .status(boardCreateReqDto.getStatus())
+                .status(BoardStatus.IN_PROGRESS)
                 .build();
     }
 }
