@@ -23,6 +23,10 @@ public class BoardCreateReqDto {
     @NotBlank
     private String content;
 
+    @Schema(description = "판매 상품 가격", example = "12000")
+    @NotBlank
+    private Integer price;
+
     @Schema(description = "상품 관련 URL (선택 사항)", example = "https://example.com/cola")
     private String url;
     @Schema(description = "모임 장소 또는 거래 위치 (선택 사항)", example = "기숙사 1층 로비")
@@ -36,6 +40,7 @@ public class BoardCreateReqDto {
         return Board.builder()
                 .title(boardCreateReqDto.getTitle())
                 .content(boardCreateReqDto.getContent())
+                .price(boardCreateReqDto.getPrice())
                 .url(boardCreateReqDto.getUrl())
                 .location(boardCreateReqDto.getLocation())
                 .category(boardCreateReqDto.getCategory())

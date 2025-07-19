@@ -12,6 +12,7 @@ public class BoardResDto {
     private Long id;
     private String title;
     private String content;
+    private Integer price;
     private String url;
     private String location;
     private BoardCategory category;
@@ -22,6 +23,7 @@ public class BoardResDto {
                 .id(board.getId())
                 .title(board.getTitle())
                 .content(board.getContent())
+                .price(board.getPrice())
                 .url(board.getUrl())
                 .location(board.getLocation())
                 .category(board.getCategory())

@@ -21,6 +21,8 @@ public class Board extends BaseEntity {
     @Lob
     private String content;
 
+    private Integer price;
+
     private String url;
 
     private String location;
@@ -36,6 +38,7 @@ public class Board extends BaseEntity {
     public void update(Board board) {
         this.title = board.getTitle();
         this.content = board.getContent();
+        this.price = board.getPrice();
         this.url = board.getUrl();
         this.location = board.getLocation();
         this.category = board.getCategory();
