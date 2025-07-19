@@ -31,19 +31,6 @@ public class BoardService {
         return BoardResDto.from(board);
     }
 
-    public List<BoardResDto> getBoardsByCategory(BoardCategory category) {
-        return boardRepository.findByCategory(category).stream()
-                .map(BoardResDto::from)
-                .collect(Collectors.toList());
-    }
-
-    public List<BoardResDto> getAllBoards() {
-        List<Board> boards = boardRepository.findAll();
-        return boards.stream()
-                .map(BoardResDto::from)
-                .toList();
-    }
-
     public BoardResDto getBoardById(Long id) {
         Board findBoard = boardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
@@ -68,24 +55,34 @@ public class BoardService {
         return BoardResDto.from(findBoard);
     }
 
-    public List<BoardResDto> searchBoardsByTitle(String keyword) {
-        List<Board> searchBoards = boardRepository.findByTitleContainingIgnoreCase(keyword);
-
-        return searchBoards.stream()
-                .map(BoardResDto::from)
-                .collect(Collectors.toList());
-    }
-
-    public List<BoardResDto> getBoardsByStatus(BoardStatus status) {
-        return boardRepository.findByStatus(status).stream()
-                .map(BoardResDto::from)
-                .collect(Collectors.toList());
-    }
-
-    public List<BoardResDto> getBoardsByCategoryAndStatus(BoardCategory category, BoardStatus status) {
-        return boardRepository.findByCategoryAndStatus(category, status).stream()
-                .map(BoardResDto::from)
-                .collect(Collectors.toList());
+    public List<BoardResDto> getFilteredBoards(String keyword, BoardCategory category, BoardStatus status) {
+        if (keyword != null && !keyword.isEmpty()) {
+            // 키워드로 게시글 제목 검색
+            return boardRepository.findByTitleContainingIgnoreCase(keyword).stream()
+                    .map(BoardResDto::from)
+                    .collect(Collectors.toList());
+        }
+        else if (category != null && status != null) {
+            // 카테고리 + 상태 조합 검색
+            return boardRepository.findByCategoryAndStatus(category, status).stream()
+                    .map(BoardResDto::from)
+                    .collect(Collectors.toList());
+        } else if (category != null) {
+            // 게시글 카테고리 검색
+            return boardRepository.findByCategory(category).stream()
+                    .map(BoardResDto::from)
+                    .collect(Collectors.toList());
+        } else if (status != null) {
+            // 현재 게시글 상태 검색
+            return boardRepository.findByStatus(status).stream() // 이 메서드가 BoardRepository에 있다고 가정
+                    .map(BoardResDto::from)
+                    .collect(Collectors.toList());
+        } else {
+            // 모든 게시글 조회
+            return boardRepository.findAll().stream()
+                    .map(BoardResDto::from)
+                    .collect(Collectors.toList());
+        }
     }
 
 }
