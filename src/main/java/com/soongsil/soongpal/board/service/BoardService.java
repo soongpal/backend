@@ -3,10 +3,13 @@ package com.soongsil.soongpal.board.service;
 import com.soongsil.soongpal.board.domain.Board;
 import com.soongsil.soongpal.board.domain.BoardCategory;
 import com.soongsil.soongpal.board.domain.BoardStatus;
+import com.soongsil.soongpal.board.domain.Like;
 import com.soongsil.soongpal.board.dto.BoardCreateReqDto;
 import com.soongsil.soongpal.board.dto.BoardResDto;
 import com.soongsil.soongpal.board.dto.BoardUpdateReqDto;
+import com.soongsil.soongpal.board.dto.LikeResDto;
 import com.soongsil.soongpal.board.repository.BoardRepository;
+import com.soongsil.soongpal.board.repository.LikeRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +27,7 @@ import java.util.List;
 public class BoardService {
 
     private final BoardRepository boardRepository;
+    private final LikeRepository likeRepository;
 
     public BoardResDto createBoard(BoardCreateReqDto boardCreateReqDto) {
         Board board = BoardCreateReqDto.toEntity(boardCreateReqDto);
@@ -85,4 +89,13 @@ public class BoardService {
         }
     }
 
+    public LikeResDto addLike(Long boardId) {
+        Like like = Like.builder()
+                .boardId(boardId)
+                .build();
+        likeRepository.save(like);
+
+        int likeCount = likeRepository.countByBoardId(boardId);
+        return LikeResDto.of(boardId, likeCount);
+    }
 }
