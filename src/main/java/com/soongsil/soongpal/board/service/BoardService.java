@@ -74,7 +74,7 @@ public class BoardService {
                     .collect(Collectors.toList());
         } else if (status != null) {
             // 현재 게시글 상태 검색
-            return boardRepository.findByStatus(status).stream() // 이 메서드가 BoardRepository에 있다고 가정
+            return boardRepository.findByStatus(status).stream()
                     .map(BoardResDto::from)
                     .collect(Collectors.toList());
         } else {
