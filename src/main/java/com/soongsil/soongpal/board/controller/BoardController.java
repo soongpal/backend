@@ -93,4 +93,14 @@ public class BoardController {
         return new ResponseEntity<>(new CommonResDto<>("게시글 좋아요 생성", dto), HttpStatus.OK);
     }
 
+    @DeleteMapping("/{id}/like")
+    @ApiResponse(responseCode = "200", description = "게시글 좋아요 삭제 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
+    @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
+    @Parameter(name = "id", description = "좋아요 삭제할 게시글의 ID", required = true)
+    @Operation(method = "DELETE", summary = "게시글 좋아요 삭제", description = "게시글 좋아요를 삭제하기 위한 API")
+    public ResponseEntity<CommonResDto<LikeResDto>> deleteLike(@PathVariable Long id) {
+        LikeResDto dto = boardService.deleteLike(id);
+        return new ResponseEntity<>(new CommonResDto<>("게시글 좋아요 삭제", dto), HttpStatus.OK);
+    }
+
 }

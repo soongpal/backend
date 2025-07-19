@@ -10,6 +10,7 @@ import com.soongsil.soongpal.board.dto.BoardUpdateReqDto;
 import com.soongsil.soongpal.board.dto.LikeResDto;
 import com.soongsil.soongpal.board.repository.BoardRepository;
 import com.soongsil.soongpal.board.repository.LikeRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -94,6 +95,15 @@ public class BoardService {
                 .boardId(boardId)
                 .build();
         likeRepository.save(like);
+
+        int likeCount = likeRepository.countByBoardId(boardId);
+        return LikeResDto.of(boardId, likeCount);
+    }
+
+    public LikeResDto deleteLike(Long boardId) {
+        Like findLike = likeRepository.findByBoardId(boardId)
+                .orElseThrow(() -> new EntityNotFoundException("좋아요 정보가 없습니다."));
+        likeRepository.delete(findLike);
 
         int likeCount = likeRepository.countByBoardId(boardId);
         return LikeResDto.of(boardId, likeCount);
