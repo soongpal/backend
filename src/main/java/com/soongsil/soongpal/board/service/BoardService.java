@@ -108,4 +108,9 @@ public class BoardService {
         int likeCount = likeRepository.countByBoardId(boardId);
         return LikeResDto.of(boardId, likeCount);
     }
+
+    public LikeResDto getLikeCount(Long boardId) {
+        int likeCount = likeRepository.countByBoardId(boardId);
+        return LikeResDto.of(boardId, likeCount);
+    }
 }
