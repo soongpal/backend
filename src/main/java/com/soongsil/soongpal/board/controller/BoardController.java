@@ -1,5 +1,6 @@
 package com.soongsil.soongpal.board.controller;
 
+import com.soongsil.soongpal.board.domain.BoardCategory;
 import com.soongsil.soongpal.board.domain.BoardStatus;
 import com.soongsil.soongpal.board.dto.BoardCreateReqDto;
 import com.soongsil.soongpal.board.dto.BoardResDto;
@@ -39,21 +40,15 @@ public class BoardController {
     }
 
     @GetMapping
-    @ApiResponse(responseCode = "200", description = "모든 게시글 조회 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
-    @Operation(method = "GET", summary = "모든 게시글 조회", description = "모든 게시글을 조회하기 위한 API")
-    public ResponseEntity<CommonResDto<List<BoardResDto>>> getAllBoards() {
-        List<BoardResDto> dto = boardService.getAllBoards();
-        return new ResponseEntity<>(new CommonResDto<>("모든 게시글 조회", dto), HttpStatus.OK);
-    }
-
-    @GetMapping("/status")
-    @ApiResponse(responseCode = "200", description = "상태별 게시글 조회 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
-    @ApiResponse(responseCode = "400", description = "유효하지 않은 상태 값", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
-    @Parameter(name = "status", description = "조회할 게시글의 상태 (GROUP 또는 USED)", required = true)
-    @Operation(method = "GET", summary = "상태별 게시글 조회", description = "status[GROUP,USED]별 게시글 조회하기 위한 API")
-    public ResponseEntity<CommonResDto<List<BoardResDto>>> getBoardsByStatus(@RequestParam BoardStatus status) {
-        List<BoardResDto> dto = boardService.getBoardsByStatus(status); // 서비스 메서드 호출
-        return new ResponseEntity<>(new CommonResDto<>("상태별 게시글 조회", dto), HttpStatus.OK);
+    @ApiResponse(responseCode = "200", description = "게시글 조회 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
+    @ApiResponse(responseCode = "400", description = "유효하지 않은 파라미터 값", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
+    @Operation(method = "GET", summary = "게시글 목록 조회 및 필터링", description = "모든 게시글 또는 'keyword', 'category', 'status' 파라미터를 조합해 게시글을 조회합니다. 파라미터가 없으면 모든 게시글을 조회합니다.")
+    @Parameter(name = "keyword", description = "조회할 게시글의 제목 (선택 사항)", required = false)
+    @Parameter(name = "category", description = "조회할 게시글의 카테고리 (GROUP 또는 USED) (선택 사항)", required = false)
+    @Parameter(name = "status", description = "조회할 게시글의 거래 상태 (IN_PROGRESS 또는 COMPLETED) (선택 사항)", required = false)
+    public ResponseEntity<CommonResDto<List<BoardResDto>>> getBoards(@RequestParam(required = false) String keyword, @RequestParam(required = false) BoardCategory category, @RequestParam(required = false) BoardStatus status) {
+        List<BoardResDto> dto = boardService.getFilteredBoards(keyword, category, status);
+        return new ResponseEntity<>(new CommonResDto<>("게시글 조회 성공", dto), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -87,11 +82,4 @@ public class BoardController {
         return new ResponseEntity<>(new CommonResDto<>("게시글 삭제", dto), HttpStatus.OK);
     }
 
-    @GetMapping("/search")
-    @Parameter(name = "keyword", description = "조회할 게시글의 제목", required = true)
-    @Operation(summary = "제목으로 게시글 검색", description = "데이터베이스에서 키워드가 포함된 게시글 제목으로 검색합니다.")
-    public ResponseEntity<List<BoardResDto>> searchBoardsByTitle(@RequestParam String keyword) {
-        List<BoardResDto> searchBoards = boardService.searchBoardsByTitle(keyword);
-        return new ResponseEntity<>(searchBoards, HttpStatus.OK);
-    }
 }

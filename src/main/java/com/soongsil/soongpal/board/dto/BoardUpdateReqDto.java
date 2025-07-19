@@ -1,8 +1,10 @@
 package com.soongsil.soongpal.board.dto;
 
 import com.soongsil.soongpal.board.domain.Board;
+import com.soongsil.soongpal.board.domain.BoardCategory;
 import com.soongsil.soongpal.board.domain.BoardStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -25,6 +27,11 @@ public class BoardUpdateReqDto {
     @NotBlank
     private String content;
 
+    @Schema(description = "제품 가격", example = "12000")
+    @NotNull
+    @Min(value = 0)
+    private Integer price;
+
     @Schema(description = "수정할 관련 웹 페이지 URL (선택 사항)", example = "http://new.example.com/link")
     private String url;
     @Schema(description = "수정할 모임 장소 또는 거래 위치 (선택 사항)", example = "숭실대학교 한경직 기념관")
@@ -32,14 +39,20 @@ public class BoardUpdateReqDto {
 
     @Schema(description = "수정할 게시글 상태", example = "USED", allowableValues = {"GROUP", "USED"})
     @NotNull
+    private BoardCategory category;
+
+    @Schema(description = "수정할 게시글의 현재 거래 상태", example = "IN_PROGRESS", allowableValues = {"IN_PROGRESS, COMPLETED"})
+    @NotNull
     private BoardStatus status;
 
     public Board toEntity() {
         return Board.builder()
                 .title(this.title)
                 .content(this.content)
+                .price(this.price)
                 .url(this.url)
                 .location(this.location)
+                .category(this.category)
                 .status(this.status)
                 .build();
     }
