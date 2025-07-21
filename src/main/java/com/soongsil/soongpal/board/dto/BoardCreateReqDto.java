@@ -4,6 +4,7 @@ import com.soongsil.soongpal.board.domain.Board;
 import com.soongsil.soongpal.board.domain.BoardCategory;
 import com.soongsil.soongpal.board.domain.BoardStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -24,7 +25,8 @@ public class BoardCreateReqDto {
     private String content;
 
     @Schema(description = "판매 상품 가격", example = "12000")
-    @NotBlank
+    @NotNull
+    @Min(100)
     private Integer price;
 
     @Schema(description = "상품 관련 URL (선택 사항)", example = "https://example.com/cola")

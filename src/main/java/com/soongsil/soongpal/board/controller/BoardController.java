@@ -5,6 +5,7 @@ import com.soongsil.soongpal.board.domain.BoardStatus;
 import com.soongsil.soongpal.board.dto.BoardCreateReqDto;
 import com.soongsil.soongpal.board.dto.BoardResDto;
 import com.soongsil.soongpal.board.dto.BoardUpdateReqDto;
+import com.soongsil.soongpal.board.dto.LikeResDto;
 import com.soongsil.soongpal.board.service.BoardService;
 import com.soongsil.soongpal.common.dto.CommonResDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -81,5 +82,37 @@ public class BoardController {
         BoardResDto dto = boardService.deleteBoard(id);
         return new ResponseEntity<>(new CommonResDto<>("게시글 삭제", dto), HttpStatus.OK);
     }
+
+    @PostMapping("/{id}/like")
+    @ApiResponse(responseCode = "200", description = "게시글 좋아요 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
+    @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
+    @Parameter(name = "id", description = "좋아요할 게시글의 ID", required = true)
+    @Operation(method = "POST", summary = "게시글 좋아요 생성", description = "게시글 좋아요 생성하기 위한 API")
+    public ResponseEntity<CommonResDto<LikeResDto>> addLike(@PathVariable Long id) {
+        LikeResDto dto = boardService.addLike(id);
+        return new ResponseEntity<>(new CommonResDto<>("게시글 좋아요 생성", dto), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}/like")
+    @ApiResponse(responseCode = "200", description = "게시글 좋아요 삭제 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
+    @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
+    @Parameter(name = "id", description = "좋아요 삭제할 게시글의 ID", required = true)
+    @Operation(method = "DELETE", summary = "게시글 좋아요 삭제", description = "게시글 좋아요를 삭제하기 위한 API")
+    public ResponseEntity<CommonResDto<LikeResDto>> deleteLike(@PathVariable Long id) {
+        LikeResDto dto = boardService.deleteLike(id);
+        return new ResponseEntity<>(new CommonResDto<>("게시글 좋아요 삭제", dto), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/like")
+    @ApiResponse(responseCode = "200", description = "게시글 좋아요 개수 조회 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
+    @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
+    @Parameter(name = "id", description = "좋아요 개수 조회할 게시글의 ID", required = true)
+    @Operation(method = "GET", summary = "게시글 개수 조회", description = "게시글 좋아요 개수를 조회하기 위한 API")
+    public ResponseEntity<CommonResDto<LikeResDto>> getLikeCount(@PathVariable Long id) {
+        LikeResDto dto = boardService.getLikeCount(id);
+        return new ResponseEntity<>(new CommonResDto<>("게시글 좋아요 개수 조회", dto), HttpStatus.OK);
+    }
+
+
 
 }
