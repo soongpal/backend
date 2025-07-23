@@ -10,6 +10,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -37,6 +40,9 @@ public class BoardCreateReqDto {
     @Schema(description = "게시글 카테고리 상태", example = "GROUP", allowableValues = {"GROUP", "USED"})
     @NotNull
     private BoardCategory category;
+
+    @Schema(description = "게시글 이미지 파일 리스트", type = "string", format = "binary")
+    private List<String> imageUrls;
 
     public static Board toEntity(BoardCreateReqDto boardCreateReqDto) {
         return Board.builder()

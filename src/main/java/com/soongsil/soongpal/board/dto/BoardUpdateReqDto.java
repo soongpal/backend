@@ -12,6 +12,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 
 @Getter
 @Setter
@@ -44,6 +46,9 @@ public class BoardUpdateReqDto {
     @Schema(description = "수정할 게시글의 현재 거래 상태", example = "IN_PROGRESS", allowableValues = {"IN_PROGRESS, COMPLETED"})
     @NotNull
     private BoardStatus status;
+
+    @Schema(description = "게시글 이미지 파일 리스트", type = "string", format = "binary")
+    private List<String> imageUrls;
 
     public Board toEntity() {
         return Board.builder()

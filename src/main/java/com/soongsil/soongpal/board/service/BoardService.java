@@ -1,9 +1,6 @@
 package com.soongsil.soongpal.board.service;
 
-import com.soongsil.soongpal.board.domain.Board;
-import com.soongsil.soongpal.board.domain.BoardCategory;
-import com.soongsil.soongpal.board.domain.BoardStatus;
-import com.soongsil.soongpal.board.domain.Like;
+import com.soongsil.soongpal.board.domain.*;
 import com.soongsil.soongpal.board.dto.BoardCreateReqDto;
 import com.soongsil.soongpal.board.dto.BoardResDto;
 import com.soongsil.soongpal.board.dto.BoardUpdateReqDto;
@@ -32,6 +29,19 @@ public class BoardService {
 
     public BoardResDto createBoard(BoardCreateReqDto boardCreateReqDto) {
         Board board = BoardCreateReqDto.toEntity(boardCreateReqDto);
+
+        List<String> imageUrls = boardCreateReqDto.getImageUrls();
+        if (imageUrls != null && !imageUrls.isEmpty()) {
+            for (String imageUrl : imageUrls) {
+                BoardImage boardImage = BoardImage.builder()
+                        .imageUrl(imageUrl)
+                        .board(board)
+                        .build();
+
+                board.addBoardImage(boardImage);
+            }
+        }
+
         boardRepository.save(board);
         return BoardResDto.from(board);
     }
@@ -47,6 +57,18 @@ public class BoardService {
     public BoardResDto updateBoard(Long id, @Valid BoardUpdateReqDto boardUpdateReqDto) {
         Board findBoard = boardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        findBoard.clearBoardImages();
+
+        List<String> newImageUrls = boardUpdateReqDto.getImageUrls();
+        if (newImageUrls != null && !newImageUrls.isEmpty()) {
+            for (String imageUrl : newImageUrls) {
+                BoardImage newImage = BoardImage.builder()
+                        .imageUrl(imageUrl)
+                        .build();
+                findBoard.addBoardImage(newImage);
+            }
+        }
 
         findBoard.update(boardUpdateReqDto.toEntity());
         return BoardResDto.from(findBoard);

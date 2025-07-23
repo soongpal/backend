@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -112,7 +113,5 @@ public class BoardController {
         LikeResDto dto = boardService.getLikeCount(id);
         return new ResponseEntity<>(new CommonResDto<>("게시글 좋아요 개수 조회", dto), HttpStatus.OK);
     }
-
-
 
 }
