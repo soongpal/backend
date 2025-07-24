@@ -14,9 +14,11 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.Pageable;
 import java.util.stream.Collectors;
 
 import java.util.List;
@@ -60,34 +62,28 @@ public class BoardService {
         return BoardResDto.from(findBoard);
     }
 
-    public List<BoardResDto> getFilteredBoards(String keyword, BoardCategory category, BoardStatus status) {
+    public Page<BoardResDto> getFilteredBoards(String keyword, BoardCategory category, BoardStatus status, Pageable pageable) {
+        Page<Board> boardsPage;
+
         if (keyword != null && !keyword.isEmpty()) {
             // 키워드로 게시글 제목 검색
-            return boardRepository.findByTitleContainingIgnoreCase(keyword).stream()
-                    .map(BoardResDto::from)
-                    .collect(Collectors.toList());
+            boardsPage = boardRepository.findByTitleContainingIgnoreCase(keyword, pageable);
         }
         else if (category != null && status != null) {
             // 카테고리 + 상태 조합 검색
-            return boardRepository.findByCategoryAndStatus(category, status).stream()
-                    .map(BoardResDto::from)
-                    .collect(Collectors.toList());
+            boardsPage = boardRepository.findByCategoryAndStatus(category, status, pageable);
         } else if (category != null) {
             // 게시글 카테고리 검색
-            return boardRepository.findByCategory(category).stream()
-                    .map(BoardResDto::from)
-                    .collect(Collectors.toList());
+            boardsPage = boardRepository.findByCategory(category, pageable);
         } else if (status != null) {
             // 현재 게시글 상태 검색
-            return boardRepository.findByStatus(status).stream()
-                    .map(BoardResDto::from)
-                    .collect(Collectors.toList());
+            boardsPage = boardRepository.findByStatus(status, pageable);
         } else {
             // 모든 게시글 조회
-            return boardRepository.findAll().stream()
-                    .map(BoardResDto::from)
-                    .collect(Collectors.toList());
+            boardsPage = boardRepository.findAll(pageable);
         }
+
+        return boardsPage.map(BoardResDto::from);
     }
 
     public LikeResDto addLike(Long boardId) {
