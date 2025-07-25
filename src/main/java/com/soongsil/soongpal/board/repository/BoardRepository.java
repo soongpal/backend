@@ -5,12 +5,13 @@ import com.soongsil.soongpal.board.domain.BoardCategory;
 import com.soongsil.soongpal.board.domain.BoardStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
-    List<Board> findByCategory(BoardCategory category);
-    List<Board> findByStatus(BoardStatus status);
-    List<Board> findByCategoryAndStatus(BoardCategory category, BoardStatus status);
-
-    List<Board> findByTitleContainingIgnoreCase(String keyword);
+    Page<Board> findByCategory(BoardCategory category, Pageable pageable);
+    Page<Board> findByStatus(BoardStatus status, Pageable pageable);
+    Page<Board> findByCategoryAndStatus(BoardCategory category, BoardStatus status, Pageable pageable);
+    Page<Board> findByTitleContainingIgnoreCase(String keyword, Pageable pageable);
 }

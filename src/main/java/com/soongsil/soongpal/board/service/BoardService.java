@@ -4,22 +4,20 @@ import com.soongsil.soongpal.board.domain.Board;
 import com.soongsil.soongpal.board.domain.BoardCategory;
 import com.soongsil.soongpal.board.domain.BoardStatus;
 import com.soongsil.soongpal.board.domain.Like;
-import com.soongsil.soongpal.board.dto.BoardCreateReqDto;
-import com.soongsil.soongpal.board.dto.BoardResDto;
-import com.soongsil.soongpal.board.dto.BoardUpdateReqDto;
-import com.soongsil.soongpal.board.dto.LikeResDto;
+import com.soongsil.soongpal.board.dto.*;
 import com.soongsil.soongpal.board.repository.BoardRepository;
 import com.soongsil.soongpal.board.repository.LikeRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.stream.Collectors;
-
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 
 @Slf4j
@@ -60,34 +58,30 @@ public class BoardService {
         return BoardResDto.from(findBoard);
     }
 
-    public List<BoardResDto> getFilteredBoards(String keyword, BoardCategory category, BoardStatus status) {
+    public BoardPageResDto getFilteredBoards(String keyword, BoardCategory category, BoardStatus status, int page) {
+        Pageable pageable = PageRequest.of(page, 15, Sort.by("createdTime").descending());
+        Page<Board> boardsPage;
+
         if (keyword != null && !keyword.isEmpty()) {
             // 키워드로 게시글 제목 검색
-            return boardRepository.findByTitleContainingIgnoreCase(keyword).stream()
-                    .map(BoardResDto::from)
-                    .collect(Collectors.toList());
+            boardsPage = boardRepository.findByTitleContainingIgnoreCase(keyword, pageable);
         }
         else if (category != null && status != null) {
             // 카테고리 + 상태 조합 검색
-            return boardRepository.findByCategoryAndStatus(category, status).stream()
-                    .map(BoardResDto::from)
-                    .collect(Collectors.toList());
+            boardsPage = boardRepository.findByCategoryAndStatus(category, status, pageable);
         } else if (category != null) {
             // 게시글 카테고리 검색
-            return boardRepository.findByCategory(category).stream()
-                    .map(BoardResDto::from)
-                    .collect(Collectors.toList());
+            boardsPage = boardRepository.findByCategory(category, pageable);
         } else if (status != null) {
             // 현재 게시글 상태 검색
-            return boardRepository.findByStatus(status).stream()
-                    .map(BoardResDto::from)
-                    .collect(Collectors.toList());
+            boardsPage = boardRepository.findByStatus(status, pageable);
         } else {
             // 모든 게시글 조회
-            return boardRepository.findAll().stream()
-                    .map(BoardResDto::from)
-                    .collect(Collectors.toList());
+            boardsPage = boardRepository.findAll(pageable);
         }
+
+        Page<BoardResDto> boardPageResDto = boardsPage.map(BoardResDto::from);
+        return BoardPageResDto.from(boardPageResDto);
     }
 
     public LikeResDto addLike(Long boardId) {
