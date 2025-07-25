@@ -58,8 +58,8 @@ public class BoardService {
         return BoardResDto.from(findBoard);
     }
 
-    public BoardPageResDto getFilteredBoards(String keyword, BoardCategory category, BoardStatus status) {
-        Pageable pageable = PageRequest.of(0, 15, Sort.by("createdTime").descending());
+    public BoardPageResDto getFilteredBoards(String keyword, BoardCategory category, BoardStatus status, int page) {
+        Pageable pageable = PageRequest.of(page, 15, Sort.by("createdTime").descending());
         Page<Board> boardsPage;
 
         if (keyword != null && !keyword.isEmpty()) {

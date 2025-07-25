@@ -42,8 +42,9 @@ public class BoardController {
     @Parameter(name = "keyword", description = "조회할 게시글의 제목 (선택 사항)", required = false)
     @Parameter(name = "category", description = "조회할 게시글의 카테고리 (GROUP 또는 USED) (선택 사항)", required = false)
     @Parameter(name = "status", description = "조회할 게시글의 거래 상태 (IN_PROGRESS 또는 COMPLETED) (선택 사항)", required = false)
-    public ResponseEntity<CommonResDto<BoardPageResDto>> getBoards(@RequestParam(required = false) String keyword, @RequestParam(required = false) BoardCategory category, @RequestParam(required = false) BoardStatus status) {
-        BoardPageResDto dto = boardService.getFilteredBoards(keyword, category, status);
+    @Parameter(name = "page", description = "조회할 페이지 번호 (0부터 시작, 기본값: 0)", example = "0")
+    public ResponseEntity<CommonResDto<BoardPageResDto>> getBoards(@RequestParam(required = false) String keyword, @RequestParam(required = false) BoardCategory category, @RequestParam(required = false) BoardStatus status, @RequestParam(defaultValue = "0") int page) {
+        BoardPageResDto dto = boardService.getFilteredBoards(keyword, category, status, page);
         return new ResponseEntity<>(new CommonResDto<>("게시글 조회 성공", dto), HttpStatus.OK);
     }
 
