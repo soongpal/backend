@@ -2,10 +2,7 @@ package com.soongsil.soongpal.board.controller;
 
 import com.soongsil.soongpal.board.domain.BoardCategory;
 import com.soongsil.soongpal.board.domain.BoardStatus;
-import com.soongsil.soongpal.board.dto.BoardCreateReqDto;
-import com.soongsil.soongpal.board.dto.BoardResDto;
-import com.soongsil.soongpal.board.dto.BoardUpdateReqDto;
-import com.soongsil.soongpal.board.dto.LikeResDto;
+import com.soongsil.soongpal.board.dto.*;
 import com.soongsil.soongpal.board.service.BoardService;
 import com.soongsil.soongpal.common.dto.CommonResDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,9 +13,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -48,11 +42,8 @@ public class BoardController {
     @Parameter(name = "keyword", description = "조회할 게시글의 제목 (선택 사항)", required = false)
     @Parameter(name = "category", description = "조회할 게시글의 카테고리 (GROUP 또는 USED) (선택 사항)", required = false)
     @Parameter(name = "status", description = "조회할 게시글의 거래 상태 (IN_PROGRESS 또는 COMPLETED) (선택 사항)", required = false)
-    @Parameter(name = "page", description = "조회할 페이지 번호 (0부터 시작, 기본값: 0)", example = "0")
-    @Parameter(name = "size", description = "한 페이지당 게시글 수 (기본값: 15)", example = "15")
-    @Parameter(name = "sort", description = "정렬 기준", example = "createdTime,desc")
-    public ResponseEntity<CommonResDto<Page<BoardResDto>>> getBoards(@RequestParam(required = false) String keyword, @RequestParam(required = false) BoardCategory category, @RequestParam(required = false) BoardStatus status, @PageableDefault(size = 15, sort = "createdTime", direction = org.springframework.data.domain.Sort.Direction.DESC)Pageable pageable) {
-        Page<BoardResDto> dto = boardService.getFilteredBoards(keyword, category, status, pageable);
+    public ResponseEntity<CommonResDto<BoardPageResDto>> getBoards(@RequestParam(required = false) String keyword, @RequestParam(required = false) BoardCategory category, @RequestParam(required = false) BoardStatus status) {
+        BoardPageResDto dto = boardService.getFilteredBoards(keyword, category, status);
         return new ResponseEntity<>(new CommonResDto<>("게시글 조회 성공", dto), HttpStatus.OK);
     }
 

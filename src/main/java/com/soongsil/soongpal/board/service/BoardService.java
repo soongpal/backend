@@ -4,10 +4,7 @@ import com.soongsil.soongpal.board.domain.Board;
 import com.soongsil.soongpal.board.domain.BoardCategory;
 import com.soongsil.soongpal.board.domain.BoardStatus;
 import com.soongsil.soongpal.board.domain.Like;
-import com.soongsil.soongpal.board.dto.BoardCreateReqDto;
-import com.soongsil.soongpal.board.dto.BoardResDto;
-import com.soongsil.soongpal.board.dto.BoardUpdateReqDto;
-import com.soongsil.soongpal.board.dto.LikeResDto;
+import com.soongsil.soongpal.board.dto.*;
 import com.soongsil.soongpal.board.repository.BoardRepository;
 import com.soongsil.soongpal.board.repository.LikeRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -15,6 +12,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,7 +58,8 @@ public class BoardService {
         return BoardResDto.from(findBoard);
     }
 
-    public Page<BoardResDto> getFilteredBoards(String keyword, BoardCategory category, BoardStatus status, Pageable pageable) {
+    public BoardPageResDto getFilteredBoards(String keyword, BoardCategory category, BoardStatus status) {
+        Pageable pageable = PageRequest.of(0, 15, Sort.by("createdTime").descending());
         Page<Board> boardsPage;
 
         if (keyword != null && !keyword.isEmpty()) {
@@ -80,7 +80,8 @@ public class BoardService {
             boardsPage = boardRepository.findAll(pageable);
         }
 
-        return boardsPage.map(BoardResDto::from);
+        Page<BoardResDto> boardPageResDto = boardsPage.map(BoardResDto::from);
+        return BoardPageResDto.from(boardPageResDto);
     }
 
     public LikeResDto addLike(Long boardId) {
