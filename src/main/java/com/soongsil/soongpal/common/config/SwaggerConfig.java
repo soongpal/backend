@@ -1,4 +1,4 @@
-package com.soongsil.soongpal.config;
+package com.soongsil.soongpal.common.config;
 
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.Components;
