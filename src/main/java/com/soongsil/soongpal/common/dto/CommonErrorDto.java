@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class CommonErrorDto<T> {
+public class CommonErrorDto {
 
     private String errorMessage;
 
