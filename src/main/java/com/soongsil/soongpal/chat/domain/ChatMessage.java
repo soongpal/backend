@@ -3,16 +3,14 @@ package com.soongsil.soongpal.chat.domain;
 
 import com.soongsil.soongpal.common.domain.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ChatMessage extends BaseEntity {
 
     @Id
