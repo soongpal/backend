@@ -39,6 +39,7 @@ public class Board extends BaseEntity {
     private BoardStatus status;
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<BoardImage> boardImages = new ArrayList<>();
 
     public void addBoardImage(BoardImage boardImage) {
