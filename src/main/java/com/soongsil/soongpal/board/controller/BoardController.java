@@ -16,6 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 
 @RequiredArgsConstructor
@@ -26,12 +29,14 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    @PostMapping
+    @PostMapping(consumes = {"multipart/form-data"})
     @ApiResponse(responseCode = "201", description = "게시글 생성 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
     @ApiResponse(responseCode = "400", description = "잘못된 요청 게시글", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
     @Operation(method = "POST", summary = "새 게시글 생성", description = "사용자가 게시글 생성하기 위한 API")
-    public ResponseEntity<CommonResDto<BoardResDto>> createBoard(@Valid @RequestBody BoardCreateReqDto boardCreateReqDto) {
-        BoardResDto dto = boardService.createBoard(boardCreateReqDto);
+    public ResponseEntity<CommonResDto<BoardResDto>> createBoard(
+            @Valid @RequestPart(value = "board") BoardCreateReqDto boardCreateReqDto,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
+        BoardResDto dto = boardService.createBoard(boardCreateReqDto, images);
         return new ResponseEntity<>(new CommonResDto<>("게시글 생성", dto), HttpStatus.CREATED);
     }
 
@@ -58,14 +63,18 @@ public class BoardController {
         return new ResponseEntity<>(new CommonResDto<>("게시글 상세 조회", dto), HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
     @ApiResponse(responseCode = "200", description = "게시글 수정 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
     @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
     @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
     @Parameter(name = "id", description = "조회할 게시글의 ID", required = true)
     @Operation(method = "PUT", summary = "게시글 수정", description = "게시글의 데이터를 수정하기 위한 API")
-    public ResponseEntity<CommonResDto<BoardResDto>> updateBoard(@PathVariable Long id, @Valid @RequestBody BoardUpdateReqDto boardUpdateReqDto) {
-        BoardResDto dto = boardService.updateBoard(id, boardUpdateReqDto);
+    public ResponseEntity<CommonResDto<BoardResDto>> updateBoard(
+            @PathVariable Long id,
+            @Valid @RequestPart(value = "board") BoardUpdateReqDto boardUpdateReqDto,
+            @RequestPart(value = "newImages", required = false) List<MultipartFile> newImages,
+            @RequestPart(value = "deleteImageIds", required = false) List<Long> deleteImageIds ) {
+        BoardResDto dto = boardService.updateBoard(id, boardUpdateReqDto, newImages, deleteImageIds);
         return new ResponseEntity<>(new CommonResDto<>("게시글 수정", dto), HttpStatus.OK);
     }
 

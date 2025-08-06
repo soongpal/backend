@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -35,13 +38,26 @@ public class Board extends BaseEntity {
     @Column(nullable = false)
     private BoardStatus status;
 
-    public void update(Board board) {
-        this.title = board.getTitle();
-        this.content = board.getContent();
-        this.price = board.getPrice();
-        this.url = board.getUrl();
-        this.location = board.getLocation();
-        this.category = board.getCategory();
-        this.status = board.getStatus();
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BoardImage> boardImages = new ArrayList<>();
+
+    public void addBoardImage(BoardImage boardImage) {
+        this.boardImages.add(boardImage);
+        boardImage.setBoard(this);
+    }
+
+    public void removeBoardImage(Long imageId) {
+        this.boardImages.removeIf(image -> image.getId().equals(imageId));
+    }
+
+    public void update(String title, String content, Integer price, String url, String location,
+                       BoardCategory category, BoardStatus status) {
+        this.title = title;
+        this.content = content;
+        this.price = price;
+        this.url = url;
+        this.location = location;
+        this.category = category;
+        this.status = status;
     }
 }

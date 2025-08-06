@@ -1,12 +1,10 @@
 package com.soongsil.soongpal.board.service;
 
-import com.soongsil.soongpal.board.domain.Board;
-import com.soongsil.soongpal.board.domain.BoardCategory;
-import com.soongsil.soongpal.board.domain.BoardStatus;
-import com.soongsil.soongpal.board.domain.Like;
+import com.soongsil.soongpal.board.domain.*;
 import com.soongsil.soongpal.board.dto.*;
 import com.soongsil.soongpal.board.repository.BoardRepository;
 import com.soongsil.soongpal.board.repository.LikeRepository;
+import com.soongsil.soongpal.common.file.S3Uploader;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 
 @Slf4j
@@ -27,10 +28,25 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final LikeRepository likeRepository;
+    private final S3Uploader s3Uploader;
 
-    public BoardResDto createBoard(BoardCreateReqDto boardCreateReqDto) {
+    public BoardResDto createBoard(BoardCreateReqDto boardCreateReqDto, List<MultipartFile> images) {
         Board board = BoardCreateReqDto.toEntity(boardCreateReqDto);
         boardRepository.save(board);
+
+        // 이미지 파일이 이씅면
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile imageFile : images) {
+                // S3에 이미지 업로드하고 "board" 디렉토리 아래에 저장
+                String imageUrl = s3Uploader.uploadFile(imageFile, "board");
+                if (imageUrl != null) {
+                    BoardImage boardImage = BoardImage.builder()
+                            .imageUrl(imageUrl)
+                            .build();
+                    board.addBoardImage(boardImage);
+                }
+            }
+        }
         return BoardResDto.from(board);
     }
 
@@ -42,17 +58,57 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardResDto updateBoard(Long id, @Valid BoardUpdateReqDto boardUpdateReqDto) {
+    public BoardResDto updateBoard(Long id, @Valid BoardUpdateReqDto boardUpdateReqDto,
+                                   List<MultipartFile> newImages, List<Long> deleteImageIds) {
         Board findBoard = boardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
-        findBoard.update(boardUpdateReqDto.toEntity());
+        findBoard.update(
+                boardUpdateReqDto.getTitle(),
+                boardUpdateReqDto.getContent(),
+                boardUpdateReqDto.getPrice(),
+                boardUpdateReqDto.getUrl(),
+                boardUpdateReqDto.getLocation(),
+                boardUpdateReqDto.getCategory(),
+                boardUpdateReqDto.getStatus()
+        );
+
+        // 이미지 삭제
+        if (deleteImageIds != null && !deleteImageIds.isEmpty()) {
+            for (Long deleteImageId : deleteImageIds) {
+                BoardImage imageToDelete = findBoard.getBoardImages().stream()
+                        .filter(img -> img.getId().equals(deleteImageId))
+                        .findFirst()
+                        .orElse(null);
+
+                if (imageToDelete != null) {
+                    s3Uploader.deleteFile(imageToDelete.getImageUrl());
+                    findBoard.removeBoardImage(deleteImageId);
+                }
+            }
+        }
+
+        // 새 이미지 추가
+        if (newImages != null && !newImages.isEmpty()) {
+            for (MultipartFile imageFile : newImages) {
+                String imageUrl = s3Uploader.uploadFile(imageFile, "board");
+                BoardImage newBoardImage = BoardImage.builder()
+                        .imageUrl(imageUrl)
+                        .build();
+                findBoard.addBoardImage(newBoardImage);
+            }
+        }
+
         return BoardResDto.from(findBoard);
     }
 
     public BoardResDto deleteBoard(Long id) {
         Board findBoard = boardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        findBoard.getBoardImages().forEach(image -> {
+            s3Uploader.deleteFile(image.getImageUrl());
+        });
 
         boardRepository.deleteById(id);
         return BoardResDto.from(findBoard);
