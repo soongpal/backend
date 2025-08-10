@@ -1,4 +1,4 @@
-package com.soongsil.soongpal.config;
+package com.soongsil.soongpal.common.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
