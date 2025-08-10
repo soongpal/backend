@@ -24,7 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/board")
 @RestController
-@Tag(name = "Board Controller", description = "게시글 관련 CRUD 로직을 수행하는 Controller입니다")
+@Tag(name = "Board Controller", description = "게시글 관련 CRUD 로직을 수행하는 Controller 입니다")
 public class BoardController {
 
     private final BoardService boardService;

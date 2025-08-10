@@ -47,14 +47,15 @@ public class BoardService {
                 }
             }
         }
-        return BoardResDto.from(board);
+        return BoardResDto.from(board, 0);
     }
 
     public BoardResDto getBoardById(Long id) {
         Board findBoard = boardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
-        return BoardResDto.from(findBoard);
+        Integer likeCount = likeRepository.countByBoardId(findBoard.getId());
+        return BoardResDto.from(findBoard, likeCount);
     }
 
     @Transactional
@@ -99,19 +100,18 @@ public class BoardService {
             }
         }
 
-        return BoardResDto.from(findBoard);
+        Integer likeCount = likeRepository.countByBoardId(findBoard.getId());
+        return BoardResDto.from(findBoard, likeCount);
     }
 
     public BoardResDto deleteBoard(Long id) {
         Board findBoard = boardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
-        findBoard.getBoardImages().forEach(image -> {
-            s3Uploader.deleteFile(image.getImageUrl());
-        });
+        findBoard.getBoardImages().forEach(image -> s3Uploader.deleteFile(image.getImageUrl()));
 
         boardRepository.deleteById(id);
-        return BoardResDto.from(findBoard);
+        return BoardResDto.from(findBoard, 0);
     }
 
     public BoardPageResDto getFilteredBoards(String keyword, BoardCategory category, BoardStatus status, int page) {
@@ -136,13 +136,15 @@ public class BoardService {
             boardsPage = boardRepository.findAll(pageable);
         }
 
-        Page<BoardResDto> boardPageResDto = boardsPage.map(BoardResDto::from);
+        Page<BoardResDto> boardPageResDto = boardsPage.map(board -> BoardResDto.from(board, likeRepository.countByBoardId(board.getId())));
         return BoardPageResDto.from(boardPageResDto);
     }
 
     public LikeResDto addLike(Long boardId) {
+        Board findBoard = boardRepository.findById(boardId)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
         Like like = Like.builder()
-                .boardId(boardId)
+                .board(findBoard)
                 .build();
         likeRepository.save(like);
 

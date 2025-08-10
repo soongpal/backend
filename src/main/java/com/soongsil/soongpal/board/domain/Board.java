@@ -38,8 +38,13 @@ public class Board extends BaseEntity {
     @Column(nullable = false)
     private BoardStatus status;
 
+    @Builder.Default
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BoardImage> boardImages = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Like> likes = new ArrayList<>();
 
     public void addBoardImage(BoardImage boardImage) {
         this.boardImages.add(boardImage);
