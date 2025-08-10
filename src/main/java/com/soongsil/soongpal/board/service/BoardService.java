@@ -5,6 +5,8 @@ import com.soongsil.soongpal.board.dto.*;
 import com.soongsil.soongpal.board.repository.BoardRepository;
 import com.soongsil.soongpal.board.repository.LikeRepository;
 import com.soongsil.soongpal.common.file.S3Uploader;
+import com.soongsil.soongpal.user.domain.User;
+import com.soongsil.soongpal.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,10 +30,12 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final LikeRepository likeRepository;
+    private final UserRepository userRepository;
     private final S3Uploader s3Uploader;
 
-    public BoardResDto createBoard(BoardCreateReqDto boardCreateReqDto, List<MultipartFile> images) {
-        Board board = BoardCreateReqDto.toEntity(boardCreateReqDto);
+    public BoardResDto createBoard(BoardCreateReqDto boardCreateReqDto, List<MultipartFile> images, Long userId) {
+        User findUser = getUser(userId);
+        Board board = BoardCreateReqDto.toEntity(boardCreateReqDto, findUser);
         boardRepository.save(board);
 
         // 이미지 파일이 이씅면
@@ -47,22 +51,29 @@ public class BoardService {
                 }
             }
         }
-        return BoardResDto.from(board, 0);
+
+        return BoardResDto.from(board, 0, false);
     }
 
-    public BoardResDto getBoardById(Long id) {
+    public BoardResDto getBoardById(Long id, Long userId) {
         Board findBoard = boardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
         Integer likeCount = likeRepository.countByBoardId(findBoard.getId());
-        return BoardResDto.from(findBoard, likeCount);
+        boolean liked = likeRepository.existsByBoardIdAndUserId(findBoard.getId(), userId);
+        return BoardResDto.from(findBoard, likeCount, liked);
     }
 
     @Transactional
     public BoardResDto updateBoard(Long id, @Valid BoardUpdateReqDto boardUpdateReqDto,
-                                   List<MultipartFile> newImages, List<Long> deleteImageIds) {
+                                   List<MultipartFile> newImages, List<Long> deleteImageIds, Long userId) {
+        User findUser = getUser(userId);
         Board findBoard = boardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        if (!findUser.equals(findBoard.getUser())) {
+            throw new SecurityException("수정 권한이 없습니다.");
+        }
 
         findBoard.update(
                 boardUpdateReqDto.getTitle(),
@@ -101,20 +112,24 @@ public class BoardService {
         }
 
         Integer likeCount = likeRepository.countByBoardId(findBoard.getId());
-        return BoardResDto.from(findBoard, likeCount);
+        boolean liked = likeRepository.existsByBoardIdAndUserId(findBoard.getId(), userId);
+        return BoardResDto.from(findBoard, likeCount, liked);
     }
 
-    public BoardResDto deleteBoard(Long id) {
+    public BoardResDto deleteBoard(Long id, Long userId) {
+        User findUser = getUser(userId);
         Board findBoard = boardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
-
+        if (!findUser.equals(findBoard.getUser())) {
+            throw new SecurityException("삭제 권한이 없습니다.");
+        }
         findBoard.getBoardImages().forEach(image -> s3Uploader.deleteFile(image.getImageUrl()));
 
         boardRepository.deleteById(id);
-        return BoardResDto.from(findBoard, 0);
+        return BoardResDto.from(findBoard, 0, false);
     }
 
-    public BoardPageResDto getFilteredBoards(String keyword, BoardCategory category, BoardStatus status, int page) {
+    public BoardPageResDto getFilteredBoards(String keyword, Long userId, BoardCategory category, BoardStatus status, int page) {
         Pageable pageable = PageRequest.of(page, 15, Sort.by("createdTime").descending());
         Page<Board> boardsPage;
 
@@ -136,15 +151,21 @@ public class BoardService {
             boardsPage = boardRepository.findAll(pageable);
         }
 
-        Page<BoardResDto> boardPageResDto = boardsPage.map(board -> BoardResDto.from(board, likeRepository.countByBoardId(board.getId())));
+        Page<BoardResDto> boardPageResDto = boardsPage.map(board -> BoardResDto.from(board, likeRepository.countByBoardId(board.getId()), likeRepository.existsByBoardIdAndUserId(board.getId(), userId) ));
         return BoardPageResDto.from(boardPageResDto);
     }
 
-    public LikeResDto addLike(Long boardId) {
+    public LikeResDto addLike(Long boardId, Long userId) {
+        User findUser = getUser(userId);
         Board findBoard = boardRepository.findById(boardId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+        if (likeRepository.existsByBoardIdAndUserId(findBoard.getId(), userId)) {
+            int likeCount = likeRepository.countByBoardId(boardId);
+            return LikeResDto.of(boardId, likeCount);
+        }
         Like like = Like.builder()
                 .board(findBoard)
+                .user(findUser)
                 .build();
         likeRepository.save(like);
 
@@ -152,8 +173,8 @@ public class BoardService {
         return LikeResDto.of(boardId, likeCount);
     }
 
-    public LikeResDto deleteLike(Long boardId) {
-        Like findLike = likeRepository.findByBoardId(boardId)
+    public LikeResDto deleteLike(Long boardId, Long userId) {
+        Like findLike = likeRepository.findByBoardIdAndUserId(boardId, userId)
                 .orElseThrow(() -> new EntityNotFoundException("좋아요 정보가 없습니다."));
         likeRepository.delete(findLike);
 
@@ -164,5 +185,10 @@ public class BoardService {
     public LikeResDto getLikeCount(Long boardId) {
         int likeCount = likeRepository.countByBoardId(boardId);
         return LikeResDto.of(boardId, likeCount);
+    }
+
+    private User getUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
     }
 }
