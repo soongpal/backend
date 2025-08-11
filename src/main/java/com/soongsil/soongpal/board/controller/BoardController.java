@@ -24,7 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/board")
 @RestController
-@Tag(name = "Board Controller", description = "게시글 관련 CRUD 로직을 수행하는 Controller입니다")
+@Tag(name = "Board Controller", description = "게시글 관련 CRUD 로직을 수행하는 Controller 입니다")
 public class BoardController {
 
     private final BoardService boardService;
@@ -36,7 +36,8 @@ public class BoardController {
     public ResponseEntity<CommonResDto<BoardResDto>> createBoard(
             @Valid @RequestPart(value = "board") BoardCreateReqDto boardCreateReqDto,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) {
-        BoardResDto dto = boardService.createBoard(boardCreateReqDto, images);
+        Long userId = getUserId();
+        BoardResDto dto = boardService.createBoard(boardCreateReqDto, images, userId);
         return new ResponseEntity<>(new CommonResDto<>("게시글 생성", dto), HttpStatus.CREATED);
     }
 
@@ -49,7 +50,8 @@ public class BoardController {
     @Parameter(name = "status", description = "조회할 게시글의 거래 상태 (IN_PROGRESS 또는 COMPLETED) (선택 사항)", required = false)
     @Parameter(name = "page", description = "조회할 페이지 번호 (0부터 시작, 기본값: 0)", example = "0")
     public ResponseEntity<CommonResDto<BoardPageResDto>> getBoards(@RequestParam(required = false) String keyword, @RequestParam(required = false) BoardCategory category, @RequestParam(required = false) BoardStatus status, @RequestParam(defaultValue = "0") int page) {
-        BoardPageResDto dto = boardService.getFilteredBoards(keyword, category, status, page);
+        Long userId = getUserId();
+        BoardPageResDto dto = boardService.getFilteredBoards(keyword, userId, category, status, page);
         return new ResponseEntity<>(new CommonResDto<>("게시글 조회 성공", dto), HttpStatus.OK);
     }
 
@@ -59,7 +61,8 @@ public class BoardController {
     @Parameter(name = "id", description = "조회할 게시글의 ID", required = true)
     @Operation(method = "GET", summary = "게시글 상세 조회", description = "id를 통해 특정 게시글을 조회하기 위한 API")
     public ResponseEntity<CommonResDto<BoardResDto>> getBoardById(@PathVariable Long id) {
-        BoardResDto dto = boardService.getBoardById(id);
+        Long userId = getUserId();
+        BoardResDto dto = boardService.getBoardById(id, userId);
         return new ResponseEntity<>(new CommonResDto<>("게시글 상세 조회", dto), HttpStatus.OK);
     }
 
@@ -74,7 +77,8 @@ public class BoardController {
             @Valid @RequestPart(value = "board") BoardUpdateReqDto boardUpdateReqDto,
             @RequestPart(value = "newImages", required = false) List<MultipartFile> newImages,
             @RequestPart(value = "deleteImageIds", required = false) List<Long> deleteImageIds ) {
-        BoardResDto dto = boardService.updateBoard(id, boardUpdateReqDto, newImages, deleteImageIds);
+        Long userId = getUserId();
+        BoardResDto dto = boardService.updateBoard(id, boardUpdateReqDto, newImages, deleteImageIds, userId);
         return new ResponseEntity<>(new CommonResDto<>("게시글 수정", dto), HttpStatus.OK);
     }
 
@@ -84,7 +88,8 @@ public class BoardController {
     @Parameter(name = "id", description = "조회할 게시글의 ID", required = true)
     @Operation(method = "DELETE", summary = "게시글 삭제", description = "게시글을 삭제하기 위한 API")
     public ResponseEntity<CommonResDto<BoardResDto>> deleteBoard(@PathVariable Long id) {
-        BoardResDto dto = boardService.deleteBoard(id);
+        Long userId = getUserId();
+        BoardResDto dto = boardService.deleteBoard(id, userId);
         return new ResponseEntity<>(new CommonResDto<>("게시글 삭제", dto), HttpStatus.OK);
     }
 
@@ -94,7 +99,8 @@ public class BoardController {
     @Parameter(name = "id", description = "좋아요할 게시글의 ID", required = true)
     @Operation(method = "POST", summary = "게시글 좋아요 생성", description = "게시글 좋아요 생성하기 위한 API")
     public ResponseEntity<CommonResDto<LikeResDto>> addLike(@PathVariable Long id) {
-        LikeResDto dto = boardService.addLike(id);
+        Long userId = getUserId();
+        LikeResDto dto = boardService.addLike(id, userId);
         return new ResponseEntity<>(new CommonResDto<>("게시글 좋아요 생성", dto), HttpStatus.OK);
     }
 
@@ -104,7 +110,8 @@ public class BoardController {
     @Parameter(name = "id", description = "좋아요 삭제할 게시글의 ID", required = true)
     @Operation(method = "DELETE", summary = "게시글 좋아요 삭제", description = "게시글 좋아요를 삭제하기 위한 API")
     public ResponseEntity<CommonResDto<LikeResDto>> deleteLike(@PathVariable Long id) {
-        LikeResDto dto = boardService.deleteLike(id);
+        Long userId = getUserId();
+        LikeResDto dto = boardService.deleteLike(id, userId);
         return new ResponseEntity<>(new CommonResDto<>("게시글 좋아요 삭제", dto), HttpStatus.OK);
     }
 
@@ -118,6 +125,9 @@ public class BoardController {
         return new ResponseEntity<>(new CommonResDto<>("게시글 좋아요 개수 조회", dto), HttpStatus.OK);
     }
 
+    private Long getUserId() {
+        return 1L;
+    }
 
 
 }

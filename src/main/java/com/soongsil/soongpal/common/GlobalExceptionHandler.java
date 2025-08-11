@@ -26,6 +26,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new CommonErrorDto(e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(SecurityException.class)
+    public ResponseEntity<CommonErrorDto> SecurityExceptionHandler (SecurityException e) {
+        log.error("[exceptionHandle] SecurityException", e);
+        return new ResponseEntity<>(new CommonErrorDto(e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<CommonErrorDto> runtimeExceptionHandler (RuntimeException e) {
         log.error("[exceptionHandle] RuntimeException", e);

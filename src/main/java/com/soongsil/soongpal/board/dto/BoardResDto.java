@@ -17,8 +17,10 @@ public class BoardResDto {
     private String location;
     private BoardCategory category;
     private BoardStatus status;
+    private Integer likeCount;
+    private boolean liked;
 
-    public static BoardResDto from(Board board) {
+    public static BoardResDto from(Board board, Integer likeCount, boolean liked) {
         return BoardResDto.builder()
                 .id(board.getId())
                 .title(board.getTitle())
@@ -28,6 +30,8 @@ public class BoardResDto {
                 .location(board.getLocation())
                 .category(board.getCategory())
                 .status(board.getStatus())
+                .likeCount(likeCount)
+                .liked(liked)
                 .build();
     }
 }

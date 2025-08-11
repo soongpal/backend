@@ -1,6 +1,7 @@
 package com.soongsil.soongpal.board.domain;
 
 import com.soongsil.soongpal.common.domain.BaseEntity;
+import com.soongsil.soongpal.user.domain.User;
 import jakarta.persistence.*;
 
 import lombok.*;
@@ -38,8 +39,16 @@ public class Board extends BaseEntity {
     @Column(nullable = false)
     private BoardStatus status;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
+
+    @Builder.Default
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BoardImage> boardImages = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Like> likes = new ArrayList<>();
 
     public void addBoardImage(BoardImage boardImage) {
         this.boardImages.add(boardImage);

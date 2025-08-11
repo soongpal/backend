@@ -3,6 +3,7 @@ package com.soongsil.soongpal.board.dto;
 import com.soongsil.soongpal.board.domain.Board;
 import com.soongsil.soongpal.board.domain.BoardCategory;
 import com.soongsil.soongpal.board.domain.BoardStatus;
+import com.soongsil.soongpal.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -38,7 +39,7 @@ public class BoardCreateReqDto {
     @NotNull
     private BoardCategory category;
 
-    public static Board toEntity(BoardCreateReqDto boardCreateReqDto) {
+    public static Board toEntity(BoardCreateReqDto boardCreateReqDto, User user) {
         return Board.builder()
                 .title(boardCreateReqDto.getTitle())
                 .content(boardCreateReqDto.getContent())
@@ -47,6 +48,7 @@ public class BoardCreateReqDto {
                 .location(boardCreateReqDto.getLocation())
                 .category(boardCreateReqDto.getCategory())
                 .status(BoardStatus.IN_PROGRESS)
+                .user(user)
                 .build();
     }
 }

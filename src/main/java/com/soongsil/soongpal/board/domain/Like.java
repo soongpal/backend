@@ -1,7 +1,9 @@
 package com.soongsil.soongpal.board.domain;
 
+import com.soongsil.soongpal.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
+
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -14,6 +16,12 @@ public class Like {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long boardId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_id")
+    private Board board;
 
 }
