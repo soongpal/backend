@@ -84,6 +84,12 @@ public class ChatRoomService {
         chatRoomUserRepository.delete(roomUser);
     }
 
+    public void deleteChatRoom(Long roomId, Long userId) {
+        ChatRoom chatRoom = chatRoomRepository.findChatRoomByIdAndUserId(roomId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("삭제 권한이 없거나 존재하지 않는 채팅방입니다."));
+        chatRoomRepository.delete(chatRoom);
+    }
+
     private ChatRoomResDto convertToChatRoomResDto(ChatRoom chatRoom) {
         List<ChatRoomUserResDto> users = chatRoom.getChatRoomUsers().stream()
                 .map(ChatRoomUserResDto::from)

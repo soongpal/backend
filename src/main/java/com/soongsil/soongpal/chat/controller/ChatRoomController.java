@@ -58,6 +58,13 @@ public class ChatRoomController {
         return new ResponseEntity<>(new CommonResDto<>("채팅방을 나갔습니다.", "성공"), HttpStatus.OK);
     }
 
+    @DeleteMapping("/{roomId}")
+    public ResponseEntity<CommonResDto<String>> deleteChatRoom(@PathVariable Long roomId) {
+        Long userId = getUserId();
+        chatRoomService.deleteChatRoom(roomId, userId);
+        return new ResponseEntity<>(new CommonResDto<>("채팅방이 삭제되었습니다.", "성공"), HttpStatus.OK);
+    }
+
     private Long getUserId() {
         return 1L;
     }
