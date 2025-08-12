@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -33,6 +35,13 @@ public class ChatRoomController {
         Long userId = getUserId();
         ChatRoomResDto chatRoom = chatRoomService.getChatRoom(roomId, userId);
         return new ResponseEntity<>(new CommonResDto<>("채팅방 정보를 조회했습니다.", chatRoom), HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<CommonResDto<List<ChatRoomResDto>>> getChatRooms() {
+        Long userId = getUserId();
+        List<ChatRoomResDto> chatRooms = chatRoomService.getChatRoomsByUser(userId);
+        return new ResponseEntity<>(new CommonResDto<>("채팅방 목록을 조회했습니다.", chatRooms), HttpStatus.OK);
     }
 
     private Long getUserId() {

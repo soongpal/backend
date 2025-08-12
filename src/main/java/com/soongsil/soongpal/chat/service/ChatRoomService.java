@@ -51,6 +51,13 @@ public class ChatRoomService {
         return convertToChatRoomResDto(chatRoom);
     }
 
+    public List<ChatRoomResDto> getChatRoomsByUser(Long userId) {
+        List<ChatRoom> chatRooms = chatRoomRepository.findChatRoomsByUserId(userId);
+        return chatRooms.stream()
+                .map(this::convertToChatRoomResDto)
+                .toList();
+    }
+
     private ChatRoomResDto convertToChatRoomResDto(ChatRoom chatRoom) {
         List<ChatRoomUserResDto> users = chatRoom.getChatRoomUsers().stream()
                 .map(ChatRoomUserResDto::from)
