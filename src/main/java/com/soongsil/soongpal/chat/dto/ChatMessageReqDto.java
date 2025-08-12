@@ -4,22 +4,19 @@ import com.soongsil.soongpal.chat.domain.ChatMessage;
 import com.soongsil.soongpal.chat.domain.ChatRoom;
 import com.soongsil.soongpal.user.domain.User;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Builder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatMessageDto {
+public class ChatMessageReqDto {
 
     private Long roomId;
     private Long senderId;
-    private String senderName;
     private String content;
 
-    public static ChatMessage toEntity(ChatMessageDto dto, ChatRoom chatRoom, User sender) {
+    public static ChatMessage toEntity(ChatMessageReqDto dto, User sender, ChatRoom chatRoom) {
         return ChatMessage.builder()
                 .chatRoom(chatRoom)
                 .sender(sender)
