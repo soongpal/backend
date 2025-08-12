@@ -44,8 +44,15 @@ public class ChatRoomController {
         return new ResponseEntity<>(new CommonResDto<>("채팅방 목록을 조회했습니다.", chatRooms), HttpStatus.OK);
     }
 
+    @PostMapping("/{roomId}/join")
+    public ResponseEntity<CommonResDto<String>> joinChatRoom(@PathVariable Long roomId) {
+        Long userId = getUserId();
+        chatRoomService.joinChatRoom(roomId, userId);
+        return new ResponseEntity<>(new CommonResDto<>("채팅방에 참가했습니다.", "성공"), HttpStatus.OK);
+    }
+
     private Long getUserId() {
-        return 2L;
+        return 1L;
     }
 
 }

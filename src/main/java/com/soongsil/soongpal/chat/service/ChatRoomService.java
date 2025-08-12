@@ -11,6 +11,7 @@ import com.soongsil.soongpal.chat.repository.ChatRoomRepository;
 import com.soongsil.soongpal.chat.repository.ChatRoomUserRepository;
 import com.soongsil.soongpal.user.domain.User;
 import com.soongsil.soongpal.user.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +57,25 @@ public class ChatRoomService {
         return chatRooms.stream()
                 .map(this::convertToChatRoomResDto)
                 .toList();
+    }
+
+    public void joinChatRoom(Long roomId, Long userId) {
+        ChatRoom findChatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("채팅방이 없습니다."));
+
+        User findUser = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+
+        boolean alreadyJoined = chatRoomUserRepository.findByChatRoomIdAndUserId(roomId, userId).isPresent();
+        if (alreadyJoined) {
+            throw new IllegalArgumentException("이미 참가한 채팅방입니다.");
+        }
+
+        ChatRoomUser roomUser = ChatRoomUser.builder()
+                .chatRoom(findChatRoom)
+                .user(findUser)
+                .build();
+        chatRoomUserRepository.save(roomUser);
     }
 
     private ChatRoomResDto convertToChatRoomResDto(ChatRoom chatRoom) {
