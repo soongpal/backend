@@ -78,6 +78,12 @@ public class ChatRoomService {
         chatRoomUserRepository.save(roomUser);
     }
 
+    public void leaveChatRoom(Long roomId, Long userId) {
+        ChatRoomUser roomUser = chatRoomUserRepository.findByChatRoomIdAndUserId(roomId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("참가하지 않은 채팅방입니다."));
+        chatRoomUserRepository.delete(roomUser);
+    }
+
     private ChatRoomResDto convertToChatRoomResDto(ChatRoom chatRoom) {
         List<ChatRoomUserResDto> users = chatRoom.getChatRoomUsers().stream()
                 .map(ChatRoomUserResDto::from)

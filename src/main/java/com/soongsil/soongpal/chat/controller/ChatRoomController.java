@@ -51,6 +51,13 @@ public class ChatRoomController {
         return new ResponseEntity<>(new CommonResDto<>("채팅방에 참가했습니다.", "성공"), HttpStatus.OK);
     }
 
+    @PostMapping("/{roomId}/leave")
+    public ResponseEntity<CommonResDto<String>> leaveChatRoom(@PathVariable Long roomId) {
+        Long userId = getUserId();
+        chatRoomService.leaveChatRoom(roomId, userId);
+        return new ResponseEntity<>(new CommonResDto<>("채팅방을 나갔습니다.", "성공"), HttpStatus.OK);
+    }
+
     private Long getUserId() {
         return 1L;
     }
