@@ -4,6 +4,7 @@ import com.soongsil.soongpal.chat.dto.ChatRoomCreateReqDto;
 import com.soongsil.soongpal.chat.dto.ChatRoomResDto;
 import com.soongsil.soongpal.chat.service.ChatRoomService;
 import com.soongsil.soongpal.common.dto.CommonResDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class ChatRoomController {
 
     @PostMapping
     public ResponseEntity<CommonResDto<ChatRoomResDto>> createChatRoom(
-            @RequestBody ChatRoomCreateReqDto dto
+            @Valid @RequestBody ChatRoomCreateReqDto dto
     ) {
         ChatRoomResDto chatRoom = chatRoomService.createChatRoom(dto);
         return new ResponseEntity<>(new CommonResDto<>("채팅방이 생성되었습니다.", chatRoom), HttpStatus.OK);

@@ -2,6 +2,7 @@ package com.soongsil.soongpal.chat.dto;
 
 import com.soongsil.soongpal.chat.domain.ChatRoom;
 import com.soongsil.soongpal.chat.domain.ChatRoomType;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ import java.util.List;
 public class ChatRoomCreateReqDto {
 
     private String name;
+    @NotBlank
     private ChatRoomType type;
     private List<Long> userIds;
 
