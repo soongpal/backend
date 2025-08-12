@@ -9,9 +9,10 @@ import com.soongsil.soongpal.chat.dto.ChatRoomUserResDto;
 import com.soongsil.soongpal.chat.repository.ChatMessageRepository;
 import com.soongsil.soongpal.chat.repository.ChatRoomRepository;
 import com.soongsil.soongpal.chat.repository.ChatRoomUserRepository;
+import com.soongsil.soongpal.common.exception.ChatErrorCode;
+import com.soongsil.soongpal.common.exception.ChatException;
 import com.soongsil.soongpal.user.domain.User;
 import com.soongsil.soongpal.user.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +29,6 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomUserRepository chatRoomUserRepository;
-
 
     public ChatRoomResDto createChatRoom(ChatRoomCreateReqDto dto) {
         ChatRoom savedRoom = chatRoomRepository.save(ChatRoomCreateReqDto.toEntity(dto));
@@ -48,7 +48,7 @@ public class ChatRoomService {
 
     public ChatRoomResDto getChatRoom(Long roomId, Long userId) {
         ChatRoom chatRoom = chatRoomRepository.findChatRoomByIdAndUserId(roomId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("접근 권한이 없거나 존재하지 않는 채팅방입니다."));
+                .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_ACCESS_DENIED));
         return convertToChatRoomResDto(chatRoom);
     }
 
@@ -61,14 +61,14 @@ public class ChatRoomService {
 
     public void joinChatRoom(Long roomId, Long userId) {
         ChatRoom findChatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("채팅방이 없습니다."));
+                .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_FOUND));
 
         User findUser = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ChatException(ChatErrorCode.USER_NOT_FOUND));
 
         boolean alreadyJoined = chatRoomUserRepository.findByChatRoomIdAndUserId(roomId, userId).isPresent();
         if (alreadyJoined) {
-            throw new IllegalArgumentException("이미 참가한 채팅방입니다.");
+            throw new ChatException(ChatErrorCode.CHAT_ROOM_ALREADY_JOINED);
         }
 
         ChatRoomUser roomUser = ChatRoomUser.builder()
@@ -80,13 +80,13 @@ public class ChatRoomService {
 
     public void leaveChatRoom(Long roomId, Long userId) {
         ChatRoomUser roomUser = chatRoomUserRepository.findByChatRoomIdAndUserId(roomId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("참가하지 않은 채팅방입니다."));
+                .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_JOINED));
         chatRoomUserRepository.delete(roomUser);
     }
 
     public void deleteChatRoom(Long roomId, Long userId) {
         ChatRoom chatRoom = chatRoomRepository.findChatRoomByIdAndUserId(roomId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("삭제 권한이 없거나 존재하지 않는 채팅방입니다."));
+                .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_DELETE_DENIED));
         chatRoomRepository.delete(chatRoom);
     }
 
