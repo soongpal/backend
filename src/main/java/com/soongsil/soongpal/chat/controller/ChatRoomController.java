@@ -26,4 +26,17 @@ public class ChatRoomController {
         return new ResponseEntity<>(new CommonResDto<>("채팅방이 생성되었습니다.", chatRoom), HttpStatus.OK);
     }
 
+    @GetMapping("/{roomId}")
+    public ResponseEntity<CommonResDto<ChatRoomResDto>> getChatRoom(
+            @PathVariable Long roomId
+    ) {
+        Long userId = getUserId();
+        ChatRoomResDto chatRoom = chatRoomService.getChatRoom(roomId, userId);
+        return new ResponseEntity<>(new CommonResDto<>("채팅방 정보를 조회했습니다.", chatRoom), HttpStatus.OK);
+    }
+
+    private Long getUserId() {
+        return 2L;
+    }
+
 }

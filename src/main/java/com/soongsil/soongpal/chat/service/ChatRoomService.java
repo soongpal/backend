@@ -45,6 +45,12 @@ public class ChatRoomService {
         return convertToChatRoomResDto(savedRoom);
     }
 
+    public ChatRoomResDto getChatRoom(Long roomId, Long userId) {
+        ChatRoom chatRoom = chatRoomRepository.findChatRoomByIdAndUserId(roomId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("접근 권한이 없거나 존재하지 않는 채팅방입니다."));
+        return convertToChatRoomResDto(chatRoom);
+    }
+
     private ChatRoomResDto convertToChatRoomResDto(ChatRoom chatRoom) {
         List<ChatRoomUserResDto> users = chatRoom.getChatRoomUsers().stream()
                 .map(ChatRoomUserResDto::from)
