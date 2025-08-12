@@ -2,6 +2,7 @@ package com.soongsil.soongpal.chat.domain;
 
 
 import com.soongsil.soongpal.common.domain.BaseEntity;
+import com.soongsil.soongpal.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,6 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "chat_messages")
 public class ChatMessage extends BaseEntity {
 
     @Id
@@ -21,7 +23,15 @@ public class ChatMessage extends BaseEntity {
     @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
 
-    private Long senderId;
-    private String message;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sender_id")
+    private User sender;
+
+    @Column(columnDefinition = "TEXT")
+    private String content;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private MessageType messageType = MessageType.TEXT;
 
 }
