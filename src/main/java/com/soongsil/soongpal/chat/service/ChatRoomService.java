@@ -1,5 +1,6 @@
 package com.soongsil.soongpal.chat.service;
 
+import com.soongsil.soongpal.chat.domain.ChatRole;
 import com.soongsil.soongpal.chat.domain.ChatRoom;
 import com.soongsil.soongpal.chat.domain.ChatRoomUser;
 import com.soongsil.soongpal.chat.dto.ChatMessageResDto;
@@ -30,18 +31,18 @@ public class ChatRoomService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomUserRepository chatRoomUserRepository;
 
-    public ChatRoomResDto createChatRoom(ChatRoomCreateReqDto dto) {
+    public ChatRoomResDto createChatRoom(ChatRoomCreateReqDto dto, Long userId) {
         ChatRoom savedRoom = chatRoomRepository.save(ChatRoomCreateReqDto.toEntity(dto));
+        User findUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ChatException(ChatErrorCode.USER_NOT_FOUND));
 
-        List<User> users = userRepository.findAllById(dto.getUserIds());
-        for (User user : users) {
-            ChatRoomUser roomUser = ChatRoomUser.builder()
-                    .chatRoom(savedRoom)
-                    .user(user)
-                    .build();
-            chatRoomUserRepository.save(roomUser);
-            savedRoom.addUser(roomUser);
-        }
+        ChatRoomUser roomUser = ChatRoomUser.builder()
+                .chatRoom(savedRoom)
+                .user(findUser)
+                .role(ChatRole.OWNER)
+                .build();
+        chatRoomUserRepository.save(roomUser);
+        savedRoom.addUser(roomUser);
 
         return convertToChatRoomResDto(savedRoom);
     }
@@ -76,17 +77,26 @@ public class ChatRoomService {
                 .user(findUser)
                 .build();
         chatRoomUserRepository.save(roomUser);
+        findChatRoom.addUser(roomUser);
     }
 
     public void leaveChatRoom(Long roomId, Long userId) {
+        ChatRoom findChatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_FOUND));
         ChatRoomUser roomUser = chatRoomUserRepository.findByChatRoomIdAndUserId(roomId, userId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_JOINED));
         chatRoomUserRepository.delete(roomUser);
+        findChatRoom.removeUser(roomUser);
     }
 
     public void deleteChatRoom(Long roomId, Long userId) {
         ChatRoom chatRoom = chatRoomRepository.findChatRoomByIdAndUserId(roomId, userId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_DELETE_DENIED));
+        ChatRoomUser roomUser = chatRoomUserRepository.findByChatRoomIdAndUserId(roomId, userId)
+                        .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_JOINED));
+        if (roomUser.getRole().equals(ChatRole.MEMBER)) {
+            throw new ChatException(ChatErrorCode.CHAT_ROOM_DELETE_DENIED);
+        }
         chatRoomRepository.delete(chatRoom);
     }
 

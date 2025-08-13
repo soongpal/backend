@@ -25,7 +25,8 @@ public class ChatRoomController {
     public ResponseEntity<CommonResDto<ChatRoomResDto>> createChatRoom(
             @Valid @RequestBody ChatRoomCreateReqDto dto
     ) {
-        ChatRoomResDto chatRoom = chatRoomService.createChatRoom(dto);
+        Long userId = getUserId();
+        ChatRoomResDto chatRoom = chatRoomService.createChatRoom(dto, userId);
         return new ResponseEntity<>(new CommonResDto<>("채팅방이 생성되었습니다.", chatRoom), HttpStatus.OK);
     }
 

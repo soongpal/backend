@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -17,7 +16,6 @@ public class ChatRoomCreateReqDto {
     private String name;
     @NotBlank
     private ChatRoomType type;
-    private List<Long> userIds;
 
     public static ChatRoom toEntity(ChatRoomCreateReqDto dto) {
         return ChatRoom.builder()

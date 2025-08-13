@@ -38,4 +38,8 @@ public class ChatRoom extends BaseEntity {
         this.chatRoomUsers.add(chatRoomUser);
     }
 
+    public void removeUser(ChatRoomUser chatRoomUser) {
+        this.chatRoomUsers.remove(chatRoomUser);
+    }
+
 }

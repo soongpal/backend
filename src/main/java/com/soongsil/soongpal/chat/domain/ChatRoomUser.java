@@ -26,4 +26,8 @@ public class ChatRoomUser extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ChatRole role = ChatRole.MEMBER;
+
 }
