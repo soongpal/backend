@@ -1,4 +1,4 @@
-package com.soongsil.soongpal.common;
+package com.soongsil.soongpal.common.exception;
 
 
 import com.soongsil.soongpal.common.dto.CommonErrorDto;
@@ -17,6 +17,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<CommonErrorDto> IllegalArgumentExceptionHandler (IllegalArgumentException e) {
         log.error("[exceptionHandle] IllegalArgumentException", e);
+        return new ResponseEntity<>(new CommonErrorDto(e.getMessage()),HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ChatException.class)
+    public ResponseEntity<CommonErrorDto> handleChatException(ChatException e) {
+        log.error("[exceptionHandle] ChatException", e);
         return new ResponseEntity<>(new CommonErrorDto(e.getMessage()),HttpStatus.BAD_REQUEST);
     }
 
