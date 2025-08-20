@@ -1,5 +1,6 @@
 package com.soongsil.soongpal.board.domain;
 
+import com.soongsil.soongpal.common.domain.BaseEntity;
 import com.soongsil.soongpal.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,7 +12,7 @@ import lombok.*;
 @Builder
 @Entity
 @Table(name = "'like'")
-public class Like {
+public class Like extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
