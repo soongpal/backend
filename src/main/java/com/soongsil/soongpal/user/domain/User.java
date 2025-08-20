@@ -20,4 +20,8 @@ public class User extends BaseEntity {
 
     private String nickName;
 
+    public void changeInfo(String nickName) {
+        this.nickName = nickName;
+    }
+
 }
