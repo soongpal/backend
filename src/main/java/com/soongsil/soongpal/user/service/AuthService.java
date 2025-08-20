@@ -1,14 +1,12 @@
 package com.soongsil.soongpal.user.service;
 import com.soongsil.soongpal.jwt.JwtTokenProvider;
 import com.soongsil.soongpal.user.domain.User;
-import com.soongsil.soongpal.user.dto.AuthResponseDto;
-import com.soongsil.soongpal.user.dto.OAuthAttributes;
-import com.soongsil.soongpal.user.dto.UserInfoResponseDto;
-import com.soongsil.soongpal.user.dto.UserUpdateRequestDto;
+import com.soongsil.soongpal.user.dto.*;
 import com.soongsil.soongpal.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -113,5 +111,25 @@ public class AuthService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다. ID: " + userId));
 
         user.updateRefreshToken(null);
+    }
+
+    public TokenRefreshResponseDto reissueTokens(String refreshToken) {
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            throw new IllegalArgumentException("유효하지 않은 리프레시 토큰입니다.");
+        }
+
+        Authentication authentication = jwtTokenProvider.getAuthentication(refreshToken);
+        Long userId = Long.parseLong(authentication.getName());
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
+
+        if (!refreshToken.equals(user.getRefreshToken())) {
+            throw new IllegalArgumentException("DB의 리프레시 토큰과 일치하지 않습니다.");
+        }
+
+        String newAccessToken = jwtTokenProvider.createAccessToken(String.valueOf(userId));
+
+        return new TokenRefreshResponseDto(newAccessToken);
     }
 }

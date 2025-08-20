@@ -2,6 +2,8 @@ package com.soongsil.soongpal.user.controller;
 
 import com.soongsil.soongpal.user.dto.AuthResponseDto;
 import com.soongsil.soongpal.user.dto.NicknameRequestDto;
+import com.soongsil.soongpal.user.dto.TokenRefreshRequestDto;
+import com.soongsil.soongpal.user.dto.TokenRefreshResponseDto;
 import com.soongsil.soongpal.user.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -25,5 +27,12 @@ public class AuthController {
         AuthResponseDto authResponseDto = authService.registerNewUser(token, nicknameRequestDto.getNickname());
 
         return ResponseEntity.ok(authResponseDto);
+    }
+
+    @Operation(summary = "토큰 재발급", description = "리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급합니다.")
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenRefreshResponseDto> refreshTokens(@RequestBody TokenRefreshRequestDto requestDto) {
+        TokenRefreshResponseDto responseDto = authService.reissueTokens(requestDto.getRefreshToken());
+        return ResponseEntity.ok(responseDto);
     }
 }
