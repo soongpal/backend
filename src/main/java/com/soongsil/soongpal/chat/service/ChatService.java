@@ -32,9 +32,8 @@ public class ChatService {
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
 
         ChatMessage chatMessage = ChatMessageReqDto.toEntity(dto, findUser, chatRoom);
-        
+
         ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
         return ChatMessageResDto.from(savedMessage);
     }
 }
-
