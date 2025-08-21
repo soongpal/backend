@@ -27,7 +27,7 @@ public class BoardCreateReqDto {
 
     @Schema(description = "판매 상품 가격", example = "12000")
     @NotNull
-    @Min(100)
+    @Min(value = 0)
     private Integer price;
 
     @Schema(description = "상품 관련 URL (선택 사항)", example = "https://example.com/cola")
