@@ -39,7 +39,10 @@ public class SecurityConfig {
                             "/error",
                             "/oauth2/**",
                             "/login/oauth2/code/**",
-                            "/api/auth/**"
+                            "/api/auth/**",
+                            "/swagger-ui.html",
+                            "/swagger-ui/**",
+                            "/v3/api-docs/**"
                     ).permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/board/**").permitAll()
                     .anyRequest().authenticated()
