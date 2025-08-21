@@ -25,7 +25,7 @@ public class BoardResDto {
 
     private String authorNickname;
     private LocalDateTime createdAt;
-    private List<String> imageUrls;
+    private List<BoardImageDto> images;
 
     private Integer likeCount;
     private boolean liked;
@@ -44,9 +44,9 @@ public class BoardResDto {
                 .liked(liked)
                 .authorNickname(board.getUser().getNickName())
                 .createdAt(board.getCreatedAt())
-                .imageUrls(board.getBoardImages().stream()
-                    .map(BoardImage::getImageUrl)
-                    .collect(Collectors.toList()))
+                .images(board.getBoardImages().stream()
+                        .map(BoardImageDto::new)
+                        .collect(Collectors.toList()))
                 .build();
     }
 }
