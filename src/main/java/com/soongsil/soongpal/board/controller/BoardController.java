@@ -129,6 +129,11 @@ public class BoardController {
 
     private Long getUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || "anonymousUser".equals(authentication.getPrincipal())) {
+            return 0L;
+        }
+
         return Long.parseLong(authentication.getName());
     }
 
