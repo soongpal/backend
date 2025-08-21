@@ -44,16 +44,4 @@ public class BoardUpdateReqDto {
     @Schema(description = "수정할 게시글의 현재 거래 상태", example = "IN_PROGRESS", allowableValues = {"IN_PROGRESS, COMPLETED"})
     @NotNull
     private BoardStatus status;
-
-    public Board toEntity() {
-        return Board.builder()
-                .title(this.title)
-                .content(this.content)
-                .price(this.price)
-                .url(this.url)
-                .location(this.location)
-                .category(this.category)
-                .status(this.status)
-                .build();
-    }
 }
