@@ -36,6 +36,10 @@ public class BoardService {
     private final BoardImageRepository boardImageRepository;
 
     public BoardResDto createBoard(BoardCreateReqDto boardCreateReqDto, List<MultipartFile> images, Long userId) {
+        if (images != null && images.size() > 5) {
+            throw new IllegalArgumentException("이미지는 최대 5개까지 업로드할 수 있습니다.");
+        }
+
         User findUser = getUser(userId);
         Board board = BoardCreateReqDto.toEntity(boardCreateReqDto, findUser);
         boardRepository.save(board);
@@ -55,7 +59,7 @@ public class BoardService {
                 }
             }
         }
-        Board savedBoard = boardRepository.findById(board.getId()).get();
+
         return BoardResDto.from(board, 0, false);
     }
 
@@ -77,6 +81,14 @@ public class BoardService {
 
         if (!findUser.equals(findBoard.getUser())) {
             throw new SecurityException("수정 권한이 없습니다.");
+        }
+
+        int currentImageCount = findBoard.getBoardImages().size();
+        int deleteImageCount = (deleteImageIds != null) ? deleteImageIds.size() : 0;
+        int newImageCount = (newImages != null) ? newImages.size() : 0;
+
+        if (currentImageCount - deleteImageCount + newImageCount > 5) {
+            throw new IllegalArgumentException("이미지는 최대 5개까지 업로드할 수 있습니다.");
         }
 
         findBoard.update(
