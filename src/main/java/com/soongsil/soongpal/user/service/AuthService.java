@@ -1,5 +1,5 @@
 package com.soongsil.soongpal.user.service;
-import com.soongsil.soongpal.jwt.JwtTokenProvider;
+import com.soongsil.soongpal.user.service.jwt.JwtTokenProvider;
 import com.soongsil.soongpal.user.domain.User;
 import com.soongsil.soongpal.user.dto.*;
 import com.soongsil.soongpal.user.repository.UserRepository;

@@ -1,4 +1,4 @@
-package com.soongsil.soongpal.jwt;
+package com.soongsil.soongpal.user.service.jwt;
 
 import com.soongsil.soongpal.user.dto.OAuthAttributes;
 import io.jsonwebtoken.*;

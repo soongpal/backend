@@ -6,8 +6,6 @@ import com.soongsil.soongpal.board.dto.BoardResDto;
 import com.soongsil.soongpal.board.repository.BoardRepository;
 import com.soongsil.soongpal.board.repository.LikeRepository;
 import com.soongsil.soongpal.user.domain.User;
-import com.soongsil.soongpal.user.dto.InfoResDto;
-import com.soongsil.soongpal.user.dto.InfoUpdateReqDto;
 import com.soongsil.soongpal.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -28,19 +26,6 @@ public class MyPageService {
     private final LikeRepository likeRepository;
     private final BoardRepository boardRepository;
 
-    public InfoResDto getInfo(Long userId) {
-        User findUser = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
-        return InfoResDto.from(findUser.getNickName());
-    }
-
-    public InfoResDto updateInfo(Long userId, InfoUpdateReqDto infoUpdateReqDto) {
-        User findUser = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
-        findUser.changeInfo(infoUpdateReqDto.getNickName());
-        return InfoResDto.from(findUser.getNickName());
-    }
-
     public BoardPageResDto getLikedBoards(Long userId, int page) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
@@ -60,10 +45,4 @@ public class MyPageService {
         return BoardPageResDto.from(boards);
     }
 
-    public String deleteMyAccount(Long userId) {
-        User findUser = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
-        findUser.delete();
-        return findUser.getNickName();
-    }
 }
