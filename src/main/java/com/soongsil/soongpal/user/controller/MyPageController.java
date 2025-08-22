@@ -46,6 +46,13 @@ public class MyPageController {
         return new ResponseEntity<>(new CommonResDto<>("작성한 게시글 조회 성공", dto), HttpStatus.OK);
     }
 
+    @DeleteMapping("/info")
+    public ResponseEntity<CommonResDto<String>> deleteMyAccount() {
+        Long userId = getUserId();
+        String dto = myPageService.deleteMyAccount(userId);
+        return new ResponseEntity<>(new CommonResDto<>("계정 삭제", dto), HttpStatus.OK);
+    }
+
     public Long getUserId() {
         return 1L;
     }

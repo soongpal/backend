@@ -58,4 +58,10 @@ public class MyPageService {
         return BoardPageResDto.from(boards);
     }
 
+    public String deleteMyAccount(Long userId) {
+        User findUser = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+        findUser.delete();
+        return findUser.getNickName();
+    }
 }
