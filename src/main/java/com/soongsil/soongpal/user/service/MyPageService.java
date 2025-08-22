@@ -42,6 +42,8 @@ public class MyPageService {
     }
 
     public BoardPageResDto getLikedBoards(Long userId, int page) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<BoardResDto> likedBoards = likeRepository.findBoardsByUserId(userId, pageable)
                 .map((Board board) -> BoardResDto.from(board, likeRepository.countByBoardId(board.getId()), true));
