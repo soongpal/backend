@@ -3,6 +3,7 @@ package com.soongsil.soongpal.user.service;
 import com.soongsil.soongpal.board.domain.Board;
 import com.soongsil.soongpal.board.dto.BoardPageResDto;
 import com.soongsil.soongpal.board.dto.BoardResDto;
+import com.soongsil.soongpal.board.repository.BoardRepository;
 import com.soongsil.soongpal.board.repository.LikeRepository;
 import com.soongsil.soongpal.user.domain.User;
 import com.soongsil.soongpal.user.dto.InfoResDto;
@@ -25,6 +26,7 @@ public class MyPageService {
 
     private final UserRepository userRepository;
     private final LikeRepository likeRepository;
+    private final BoardRepository boardRepository;
 
     public InfoResDto getInfo(Long userId) {
         User findUser = userRepository.findById(userId)
@@ -46,4 +48,14 @@ public class MyPageService {
         
         return BoardPageResDto.from(likedBoards);
     }
+
+    public BoardPageResDto getMyBoards(Long userId, int page) {
+        User findUser = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<BoardResDto> boards = boardRepository.findByUser(findUser, pageable)
+                .map(b -> BoardResDto.from(b, likeRepository.countByBoardId(b.getId()), likeRepository.existsByBoardIdAndUserId(b.getId(), findUser.getId())));
+        return BoardPageResDto.from(boards);
+    }
+
 }

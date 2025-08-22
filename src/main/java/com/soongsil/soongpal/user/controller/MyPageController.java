@@ -39,6 +39,13 @@ public class MyPageController {
         return new ResponseEntity<>(new CommonResDto<>("좋아요한 게시글 조회 성공", dto), HttpStatus.OK);
     }
 
+    @GetMapping("/posts")
+    public ResponseEntity<CommonResDto<BoardPageResDto>> getMyBoards(@RequestParam(defaultValue = "0") int page) {
+        Long userId = getUserId();
+        BoardPageResDto dto = myPageService.getMyBoards(userId, page);
+        return new ResponseEntity<>(new CommonResDto<>("작성한 게시글 조회 성공", dto), HttpStatus.OK);
+    }
+
     public Long getUserId() {
         return 1L;
     }
