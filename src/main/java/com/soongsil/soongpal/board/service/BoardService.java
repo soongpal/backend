@@ -2,6 +2,7 @@ package com.soongsil.soongpal.board.service;
 
 import com.soongsil.soongpal.board.domain.*;
 import com.soongsil.soongpal.board.dto.*;
+import com.soongsil.soongpal.board.repository.BoardImageRepository;
 import com.soongsil.soongpal.board.repository.BoardRepository;
 import com.soongsil.soongpal.board.repository.LikeRepository;
 import com.soongsil.soongpal.common.file.S3Uploader;
@@ -32,6 +33,7 @@ public class BoardService {
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
     private final S3Uploader s3Uploader;
+    private final BoardImageRepository boardImageRepository;
 
     public BoardResDto createBoard(BoardCreateReqDto boardCreateReqDto, List<MultipartFile> images, Long userId) {
         User findUser = getUser(userId);
@@ -46,12 +48,14 @@ public class BoardService {
                 if (imageUrl != null) {
                     BoardImage boardImage = BoardImage.builder()
                             .imageUrl(imageUrl)
+                            .board(board)
                             .build();
+                    boardImageRepository.save(boardImage);
                     board.addBoardImage(boardImage);
                 }
             }
         }
-
+        Board savedBoard = boardRepository.findById(board.getId()).get();
         return BoardResDto.from(board, 0, false);
     }
 
