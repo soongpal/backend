@@ -97,8 +97,7 @@ public class BoardService {
                 boardUpdateReqDto.getPrice(),
                 boardUpdateReqDto.getUrl(),
                 boardUpdateReqDto.getLocation(),
-                boardUpdateReqDto.getCategory(),
-                boardUpdateReqDto.getStatus()
+                boardUpdateReqDto.getCategory()
         );
 
         // 이미지 삭제
@@ -126,6 +125,23 @@ public class BoardService {
                 findBoard.addBoardImage(newBoardImage);
             }
         }
+
+        Integer likeCount = likeRepository.countByBoardId(findBoard.getId());
+        boolean liked = likeRepository.existsByBoardIdAndUserId(findBoard.getId(), userId);
+        return BoardResDto.from(findBoard, likeCount, liked);
+    }
+
+    @Transactional
+    public BoardResDto updateBoardStatus(Long id, BoardStatusUpdateDto statusUpdateDto, Long userId) {
+        User findUser = getUser(userId);
+        Board findBoard = boardRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        if (!findUser.equals(findBoard.getUser())) {
+            throw new SecurityException("수정 권한이 없습니다.");
+        }
+
+        findBoard.updateStatus(statusUpdateDto.getStatus());
 
         Integer likeCount = likeRepository.countByBoardId(findBoard.getId());
         boolean liked = likeRepository.existsByBoardIdAndUserId(findBoard.getId(), userId);

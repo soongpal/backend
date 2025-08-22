@@ -84,6 +84,19 @@ public class BoardController {
         return new ResponseEntity<>(new CommonResDto<>("게시글 수정", dto), HttpStatus.OK);
     }
 
+    @PatchMapping("/{id}/status")
+    @ApiResponse(responseCode = "200", description = "게시글 상태 변경 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
+    @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
+    @Parameter(name = "id", description = "상태를 변경할 게시글의 ID", required = true)
+    @Operation(summary = "게시글 거래 상태 변경", description = "게시글의 거래 상태(IN_PROGRESS 또는 COMPLETED)를 변경하기 위한 API")
+    public ResponseEntity<CommonResDto<BoardResDto>> updateBoardStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody BoardStatusUpdateDto statusUpdateDto) {
+        Long userId = getUserId();
+        BoardResDto dto = boardService.updateBoardStatus(id, statusUpdateDto, userId);
+        return new ResponseEntity<>(new CommonResDto<>("게시글 상태 변경", dto), HttpStatus.OK);
+    }
+
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "200", description = "게시글 삭제 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
     @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = CommonResDto.class)))

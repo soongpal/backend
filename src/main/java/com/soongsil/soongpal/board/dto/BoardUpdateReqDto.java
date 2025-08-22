@@ -40,8 +40,4 @@ public class BoardUpdateReqDto {
     @Schema(description = "수정할 게시글 상태", example = "USED", allowableValues = {"GROUP", "USED"})
     @NotNull
     private BoardCategory category;
-
-    @Schema(description = "수정할 게시글의 현재 거래 상태", example = "IN_PROGRESS", allowableValues = {"IN_PROGRESS, COMPLETED"})
-    @NotNull
-    private BoardStatus status;
 }
