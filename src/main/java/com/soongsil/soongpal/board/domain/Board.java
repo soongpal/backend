@@ -60,13 +60,16 @@ public class Board extends BaseEntity {
     }
 
     public void update(String title, String content, Integer price, String url, String location,
-                       BoardCategory category, BoardStatus status) {
+                       BoardCategory category) {
         this.title = title;
         this.content = content;
         this.price = price;
         this.url = url;
         this.location = location;
         this.category = category;
+    }
+
+    public void updateStatus(BoardStatus status) {
         this.status = status;
     }
 }
