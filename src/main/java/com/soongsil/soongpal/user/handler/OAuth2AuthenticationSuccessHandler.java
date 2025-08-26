@@ -32,7 +32,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         if ("ROLE_GUEST".equals(principalDetails.getAuthorities().iterator().next().getAuthority())) {
             String tempToken = jwtTokenProvider.createTempSignupToken(principalDetails.getOauthAttributes());
 
-            String redirectUrl = UriComponentsBuilder.fromUriString(authorizedRedirectUri + "auth/signup")
+            String redirectUrl = UriComponentsBuilder.fromUriString(authorizedRedirectUri + "/auth/signup")
                     .queryParam("temp_token", tempToken)
                     .build().toUriString();
             response.sendRedirect(redirectUrl);
