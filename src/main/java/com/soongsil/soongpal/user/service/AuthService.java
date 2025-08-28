@@ -1,4 +1,7 @@
 package com.soongsil.soongpal.user.service;
+
+import com.soongsil.soongpal.board.repository.LikeRepository;
+import com.soongsil.soongpal.board.service.BoardService;
 import com.soongsil.soongpal.user.service.jwt.JwtTokenProvider;
 import com.soongsil.soongpal.user.domain.User;
 import com.soongsil.soongpal.user.dto.*;
@@ -21,6 +24,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final LikeRepository likeRepository;
+    private final BoardService boardService;
     private final JwtTokenProvider jwtTokenProvider;
     private final WebClient webClient = WebClient.create();
 
@@ -28,7 +33,7 @@ public class AuthService {
     private String kakaoAdminKey;
 
     @Transactional
-    public AuthResponseDto registerNewUser(String tempToken, String nickname) {
+    public TokenPair registerNewUser(String tempToken, String nickname) {
         if (!jwtTokenProvider.validateToken(tempToken)) {
             throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
         }
@@ -45,10 +50,9 @@ public class AuthService {
         String accessToken = jwtTokenProvider.createAccessToken(userId);
         String refreshToken = jwtTokenProvider.createRefreshToken(userId);
 
-        return AuthResponseDto.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        newUser.updateRefreshToken(refreshToken);
+
+        return new TokenPair(accessToken, refreshToken);
     }
 
     @Transactional
@@ -56,6 +60,8 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다. ID: " + userId));
 
+        likeRepository.deleteAllByUser(user);
+        boardService.deleteAllBoardsByUser(user);
         unlinkKakaoAccount(user.getKakaoId());
         userRepository.delete(user);
     }
