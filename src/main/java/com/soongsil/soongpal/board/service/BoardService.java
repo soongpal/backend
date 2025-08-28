@@ -223,4 +223,13 @@ public class BoardService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
     }
+
+    @Transactional
+    public void deleteAllBoardsByUser(User user) {
+        List<Board> boardsToDelete = boardRepository.findAllByUser(user);
+        boardsToDelete.forEach(board -> {
+            board.getBoardImages().forEach(image -> s3Uploader.deleteFile(image.getImageUrl()));
+            boardRepository.delete(board);
+        });
+    }
 }

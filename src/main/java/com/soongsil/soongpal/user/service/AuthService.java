@@ -1,4 +1,9 @@
 package com.soongsil.soongpal.user.service;
+import com.soongsil.soongpal.board.domain.Board;
+import com.soongsil.soongpal.board.repository.BoardRepository;
+import com.soongsil.soongpal.board.repository.LikeRepository;
+import com.soongsil.soongpal.board.service.BoardService;
+import com.soongsil.soongpal.common.file.S3Uploader;
 import com.soongsil.soongpal.jwt.JwtTokenProvider;
 import com.soongsil.soongpal.user.domain.User;
 import com.soongsil.soongpal.user.dto.*;
@@ -15,12 +20,16 @@ import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final LikeRepository likeRepository;
+    private final BoardService boardService;
     private final JwtTokenProvider jwtTokenProvider;
     private final WebClient webClient = WebClient.create();
 
@@ -55,6 +64,8 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다. ID: " + userId));
 
+        likeRepository.deleteAllByUser(user);
+        boardService.deleteAllBoardsByUser(user);
         unlinkKakaoAccount(user.getKakaoId());
         userRepository.delete(user);
     }
