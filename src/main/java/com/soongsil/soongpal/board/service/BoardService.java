@@ -121,6 +121,7 @@ public class BoardService {
                 String imageUrl = s3Uploader.uploadFile(imageFile, "board");
                 BoardImage newBoardImage = BoardImage.builder()
                         .imageUrl(imageUrl)
+                        .board(findBoard)
                         .build();
                 findBoard.addBoardImage(newBoardImage);
             }
