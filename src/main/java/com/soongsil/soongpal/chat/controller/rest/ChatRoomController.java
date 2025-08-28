@@ -1,4 +1,4 @@
-package com.soongsil.soongpal.chat.controller;
+package com.soongsil.soongpal.chat.controller.rest;
 
 import com.soongsil.soongpal.chat.dto.ChatRoomCreateReqDto;
 import com.soongsil.soongpal.chat.dto.ChatRoomResDto;
