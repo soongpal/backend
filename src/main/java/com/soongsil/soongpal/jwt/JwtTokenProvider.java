@@ -121,4 +121,7 @@ public class JwtTokenProvider {
             .getBody();
     }
 
+    public long getRefreshTokenValidityInMilliseconds() {
+        return refreshTokenValidityInMilliseconds;
+    }
 }

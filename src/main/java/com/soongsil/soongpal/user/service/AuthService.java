@@ -28,7 +28,7 @@ public class AuthService {
     private String kakaoAdminKey;
 
     @Transactional
-    public AuthResponseDto registerNewUser(String tempToken, String nickname) {
+    public TokenPair registerNewUser(String tempToken, String nickname) {
         if (!jwtTokenProvider.validateToken(tempToken)) {
             throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
         }
@@ -45,10 +45,9 @@ public class AuthService {
         String accessToken = jwtTokenProvider.createAccessToken(userId);
         String refreshToken = jwtTokenProvider.createRefreshToken(userId);
 
-        return AuthResponseDto.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        newUser.updateRefreshToken(refreshToken);
+
+        return new TokenPair(accessToken, refreshToken);
     }
 
     @Transactional

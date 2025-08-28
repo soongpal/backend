@@ -3,6 +3,7 @@ package com.soongsil.soongpal.user.handler;
 import com.soongsil.soongpal.jwt.JwtTokenProvider;
 import com.soongsil.soongpal.user.dto.PrincipalDetails;
 import com.soongsil.soongpal.user.service.AuthService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -44,11 +45,25 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
             authService.updateRefreshToken(Long.parseLong(userId), refreshToken);
 
+            addRefreshTokenToCookie(response, refreshToken);
+
             String redirectUrl = UriComponentsBuilder.fromUriString(authorizedRedirectUri)
                     .queryParam("access_token", accessToken)
-                    .queryParam("refresh_token", refreshToken)
                     .build().toUriString();
             response.sendRedirect(redirectUrl);
         }
+    }
+
+    private void addRefreshTokenToCookie(HttpServletResponse response, String refreshToken) {
+        long refreshTokenValidityInSeconds = jwtTokenProvider.getRefreshTokenValidityInMilliseconds() / 1000;
+
+        Cookie cookie = new Cookie("refreshToken", refreshToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/api/auth/refresh");
+        cookie.setMaxAge((int) refreshTokenValidityInSeconds);
+        cookie.setDomain("soongpal.shop");
+
+        response.addCookie(cookie);
     }
 }
