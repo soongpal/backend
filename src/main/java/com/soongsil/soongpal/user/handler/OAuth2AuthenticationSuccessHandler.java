@@ -3,24 +3,29 @@ package com.soongsil.soongpal.user.handler;
 import com.soongsil.soongpal.jwt.JwtTokenProvider;
 import com.soongsil.soongpal.user.dto.PrincipalDetails;
 import com.soongsil.soongpal.user.service.AuthService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     @Value("${app.oauth2.authorized-redirect-uri}")
     private String authorizedRedirectUri;
+    @Value("${app.cookie.domain}")
+    private String cookieDomain;
+    @Value("${app.cookie.secure}")
+    private boolean cookieSecure;
 
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthService authService;
@@ -31,6 +36,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
 
         if ("ROLE_GUEST".equals(principalDetails.getAuthorities().iterator().next().getAuthority())) {
+            log.info("### SUCCESS HANDLER: User is identified as GUEST. Redirecting to signup.");
             String tempToken = jwtTokenProvider.createTempSignupToken(principalDetails.getOauthAttributes());
 
             String redirectUrl = UriComponentsBuilder.fromUriString(authorizedRedirectUri + "/auth/signup")
@@ -39,6 +45,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
             response.sendRedirect(redirectUrl);
 
         } else {
+            log.info("### SUCCESS HANDLER: User is identified as EXISTING USER. Setting cookie.");
             String userId = String.valueOf(principalDetails.getUser().getId());
             String accessToken = jwtTokenProvider.createAccessToken(userId);
             String refreshToken = jwtTokenProvider.createRefreshToken(userId);
@@ -57,13 +64,15 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     private void addRefreshTokenToCookie(HttpServletResponse response, String refreshToken) {
         long refreshTokenValidityInSeconds = jwtTokenProvider.getRefreshTokenValidityInMilliseconds() / 1000;
 
-        Cookie cookie = new Cookie("refreshToken", refreshToken);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/api/auth/refresh");
-        cookie.setMaxAge((int) refreshTokenValidityInSeconds);
-        cookie.setDomain("soongpal.shop");
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .path("/")
+                .maxAge(refreshTokenValidityInSeconds)
+                .sameSite(cookieSecure ? "None" : "Lax")
+                .domain(cookieSecure ? cookieDomain : null)
+                .build();
 
-        response.addCookie(cookie);
+        response.addHeader("Set-Cookie", cookie.toString());
     }
 }
