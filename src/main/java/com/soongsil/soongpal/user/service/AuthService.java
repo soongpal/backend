@@ -1,10 +1,7 @@
 package com.soongsil.soongpal.user.service;
-import com.soongsil.soongpal.board.domain.Board;
-import com.soongsil.soongpal.board.repository.BoardRepository;
 import com.soongsil.soongpal.board.repository.LikeRepository;
 import com.soongsil.soongpal.board.service.BoardService;
-import com.soongsil.soongpal.common.file.S3Uploader;
-import com.soongsil.soongpal.jwt.JwtTokenProvider;
+import com.soongsil.soongpal.user.service.jwt.JwtTokenProvider;
 import com.soongsil.soongpal.user.domain.User;
 import com.soongsil.soongpal.user.dto.*;
 import com.soongsil.soongpal.user.repository.UserRepository;
@@ -19,8 +16,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import java.util.List;
 
 
 @Service

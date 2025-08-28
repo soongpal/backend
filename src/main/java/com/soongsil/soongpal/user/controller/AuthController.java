@@ -1,6 +1,6 @@
 package com.soongsil.soongpal.user.controller;
 
-import com.soongsil.soongpal.jwt.JwtTokenProvider;
+import com.soongsil.soongpal.user.service.jwt.JwtTokenProvider;
 import com.soongsil.soongpal.user.dto.*;
 import com.soongsil.soongpal.user.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;

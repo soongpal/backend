@@ -1,7 +1,7 @@
 package com.soongsil.soongpal.common.config;
 
-import com.soongsil.soongpal.jwt.JwtAuthenticationFilter;
-import com.soongsil.soongpal.jwt.JwtTokenProvider;
+import com.soongsil.soongpal.user.service.jwt.JwtAuthenticationFilter;
+import com.soongsil.soongpal.user.service.jwt.JwtTokenProvider;
 import com.soongsil.soongpal.user.handler.OAuth2AuthenticationSuccessHandler;
 import com.soongsil.soongpal.user.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;

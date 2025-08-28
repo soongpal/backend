@@ -1,4 +1,4 @@
-package com.soongsil.soongpal.jwt;
+package com.soongsil.soongpal.user.service.jwt;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;

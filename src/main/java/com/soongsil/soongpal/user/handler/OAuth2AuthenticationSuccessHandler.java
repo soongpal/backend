@@ -1,6 +1,6 @@
 package com.soongsil.soongpal.user.handler;
 
-import com.soongsil.soongpal.jwt.JwtTokenProvider;
+import com.soongsil.soongpal.user.service.jwt.JwtTokenProvider;
 import com.soongsil.soongpal.user.dto.PrincipalDetails;
 import com.soongsil.soongpal.user.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
