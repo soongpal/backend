@@ -143,6 +143,10 @@ public class JwtTokenProvider {
             .getBody();
     }
 
+    public String getUserIdFromToken(String token) {
+        return parseClaims(token).getSubject();
+    }
+
     public long getRefreshTokenValidityInMilliseconds() {
         return refreshTokenValidityInMilliseconds;
     }
