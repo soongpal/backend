@@ -106,7 +106,7 @@ public class JwtTokenProvider {
         Claims claims = parseClaims(token);
 
         if (claims.get("auth") == null) {
-            log.warn(">>>>> [JwtTokenProvider] 권한 정보가 없는 토큰입니다.");
+            log.error(">>>>> [JwtTokenProvider] 권한 정보가 없는 토큰입니다.");
             throw new RuntimeException("권한 정보가 없는 토큰입니다.");
         }
 
