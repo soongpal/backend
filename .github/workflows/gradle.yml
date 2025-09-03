@@ -99,5 +99,6 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
+            echo "${{ secrets.APPLICATION_YAML }}" > /home/ubuntu/application.yaml
             pkill -f '.*\.jar' || true
             nohup java -jar /home/ubuntu/*.jar < /dev/null > /dev/null 2>&1 &
