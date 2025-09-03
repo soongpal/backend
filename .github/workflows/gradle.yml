@@ -84,22 +84,14 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         script: |
+          mkdir -p /home/ubuntu/firebase
+          
           echo "${{ secrets.APPLICATION_YAML }}" > /home/ubuntu/application.yaml
-          echo "${{ secrets.FIREBASE_KEY_JSON }}" > /home/ubuntu/firebase-service-key.json
+          echo "${{ secrets.FIREBASE_KEY_JSON }}" > /home/ubuntu/firebase/soongpal2-65857-firebase-adminsdk-fbsvc-37398551d6.json
           
           pkill -f '.*\.jar' || true
           
-          JAR_FILE=$(find /home/ubuntu -maxdepth 1 -name "*[!plain].jar" | head -n 1)
-          if [ -z "$JAR_FILE" ]; then
-            echo "ERROR: JAR file not found!"
-            exit 1
-          fi
+          JAR_FILE=$(find /home/ubuntu -maxdepth 1 -name "*[!plain].jar")
           
-          echo "--- Starting application: $JAR_FILE ---"
-          
-          nohup setsid java -Xmx512m -jar "$JAR_FILE" \
-            --spring.config.location=file:/home/ubuntu/application.yaml \
-            > /home/ubuntu/app.log 2>&1 < /dev/null &
-
-          echo "Deployment finished. Logs at /home/ubuntu/app.log"
+          nohup java -Xmx512m -cp "/home/ubuntu:$JAR_FILE" com.soongsil.soongpal.SoongpalApplication --spring.config.location=file:/home/ubuntu/application.yaml < /dev/null > /dev/null 2>&1 &
           
