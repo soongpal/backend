@@ -15,7 +15,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -28,8 +27,6 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
 
-    # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
-    # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
 
@@ -42,22 +39,11 @@ jobs:
         name: soongpal
         path: build/libs/*[!plain].jar
 
-    # NOTE: The Gradle Wrapper is the default and recommended way to run Gradle (https://docs.gradle.org/current/userguide/gradle_wrapper.html).
-    # If your project does not have the Gradle Wrapper configured, you can use the following configuration to run Gradle with a specified version.
-    #
-    # - name: Setup Gradle
-    #   uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
-    #   with:
-    #     gradle-version: '8.9'
-    #
-    # - name: Build with Gradle 8.9
-    #   run: gradle build
-
   dependency-submission:
-
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
+      dependency-graph: write
 
     steps:
     - uses: actions/checkout@v4
@@ -67,46 +53,52 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
 
-    # Generates and submits a dependency graph, enabling Dependabot Alerts for all project dependencies.
-    # See: https://github.com/gradle/actions/blob/main/dependency-submission/README.md
     - name: Generate and submit dependency graph
       uses: gradle/actions/dependency-submission@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+
   deploy:
-      needs: build # build 작업이 성공해야 실행됨
-      runs-on: ubuntu-latest
-      permissions:
-        contents: read
-  
-      steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: soongpal
-          path: ./artifact
-     
-      - name: Verify downloaded files
-        run: |
-          echo "--- Listing all files recursively ---"
-          ls -R .
-          echo "-------------------------------------"
-  
-      - name: Transfer JAR to EC2
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
-          source: "artifact/*.jar"
-          target: "/home/ubuntu"
-  
-      - name: Execute deployment script on EC2
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script: |
-            echo "${{ secrets.APPLICATION_YAML }}" > /home/ubuntu/application.yaml
-            echo "${{ secrets.FIREBASE_KEY_JSON }}" > /home/ubuntu/firebase-service-key.json
-            pkill -f '.*\.jar' || true
-            nohup java -jar /home/ubuntu/*[!plain].jar --spring.config.location=file:/home/ubuntu/application.yaml < /dev/null > /dev/null 2>&1 &
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - name: Download build artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: soongpal
+        path: ./artifact
+
+    - name: Transfer JAR to EC2
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.EC2_PRIVATE_KEY }}
+        source: "artifact/*.jar"
+        target: "/home/ubuntu"
+
+    - name: Execute deployment script on EC2
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.EC2_PRIVATE_KEY }}
+        script: |
+          echo "--- 1. Listing all files in /home/ubuntu ---"
+          ls -la /home/ubuntu
+          
+          echo "${{ secrets.APPLICATION_YAML }}" > /home/ubuntu/application.yaml
+          
+          echo "${{ secrets.FIREBASE_KEY_JSON }}" > /home/ubuntu/firebase-service-key.json
+          
+          echo "--- 2. Verifying contents of config files ---"
+          echo "--- application.yaml content ---"
+          cat /home/ubuntu/application.yaml
+          echo "--- firebase-service-key.json content ---"
+          cat /home/ubuntu/firebase-service-key.json
+          
+          pkill -f '.*\.jar' || true
+          
+          echo "--- 3. Starting the application directly ---"
+          java -jar /home/ubuntu/*[!plain].jar --spring.config.location=file:/home/ubuntu/application.yaml
