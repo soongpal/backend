@@ -93,5 +93,4 @@ jobs:
           
           JAR_FILE=$(find /home/ubuntu -maxdepth 1 -name "*[!plain].jar")
           
-          nohup java -Xmx512m -cp "/home/ubuntu:$JAR_FILE" com.soongsil.soongpal.SoongpalApplication --spring.config.location=file:/home/ubuntu/application.yaml < /dev/null > /dev/null 2>&1 &
-          
+          nohup java -Xmx512m -Dloader.path=/home/ubuntu -jar $JAR_FILE --spring.config.location=file:/home/ubuntu/application.yaml < /dev/null > /dev/null 2>&1 &
