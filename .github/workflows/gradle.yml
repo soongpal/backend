@@ -97,9 +97,9 @@ jobs:
           
           echo "--- Starting application: $JAR_FILE ---"
           
-          nohup java -Xmx512m -jar "$JAR_FILE" \
+          nohup setsid java -Xmx512m -jar "$JAR_FILE" \
             --spring.config.location=file:/home/ubuntu/application.yaml \
-            > /home/ubuntu/app.log 2>&1 < /dev/null & disown || true
-          
-          echo "✅ Deployment finished. Logs at /home/ubuntu/app.log"
+            > /home/ubuntu/app.log 2>&1 < /dev/null &
+
+          echo "Deployment finished. Logs at /home/ubuntu/app.log"
           
