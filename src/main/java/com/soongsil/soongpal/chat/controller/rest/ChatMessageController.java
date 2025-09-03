@@ -1,4 +1,4 @@
-package com.soongsil.soongpal.chat.controller;
+package com.soongsil.soongpal.chat.controller.rest;
 
 import com.soongsil.soongpal.chat.dto.ChatMessageResDto;
 import com.soongsil.soongpal.chat.dto.ChatPageResDto;

@@ -119,6 +119,13 @@ public class AuthService {
         user.updateRefreshToken(null);
     }
 
+    @Transactional
+    public void updateFcmToken(Long userId, String fcmToken) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다. ID: " + userId));
+        user.updateFcmToken(fcmToken);
+    }
+
     public TokenRefreshResponseDto reissueTokens(String refreshToken) {
         if (!jwtTokenProvider.validateToken(refreshToken)) {
             throw new IllegalArgumentException("유효하지 않은 리프레시 토큰입니다.");
