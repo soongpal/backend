@@ -77,31 +77,22 @@ jobs:
         source: "artifact/*.jar"
         target: "/home/ubuntu"
 
-    - name: Execute final deployment script on EC2
+    - name: Execute production deployment script on EC2
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         script: |
-          # 1. Use single quotes for safety and create config files
-          echo '${{ secrets.APPLICATION_YAML }}' > /home/ubuntu/application.yaml
-          echo '${{ secrets.FIREBASE_KEY_JSON }}' > /home/ubuntu/firebase-service-key.json
+          # 1. Create config files using double quotes to allow secret expansion
+          echo "${{ secrets.APPLICATION_YAML }}" > /home/ubuntu/application.yaml
+          echo "${{ secrets.FIREBASE_KEY_JSON }}" > /home/ubuntu/firebase-service-key.json
           
           # 2. Stop any old application
           pkill -f '.*\.jar' || true
           
-          # 3. Find the exact JAR file to run (more robust way)
+          # 3. Find the exact JAR file to run
           JAR_FILE=$(find /home/ubuntu -maxdepth 1 -name "*[!plain].jar")
           
           # 4. Check if JAR file was found
-          if [ -z "$JAR_FILE" ]; then
-            echo "ERROR: JAR file not found!"
-            exit 1
-          fi
-          
-          echo "--- Starting application: $JAR_FILE ---"
-          
-          # 5. Run directly with limited memory to prevent OOM Killer.
-          #    This will show any startup errors in the GitHub Actions log.
-          java -Xmx512m -jar $JAR_FILE --spring.config.location=file:/home/ubuntu/application.yaml
+          if [ -z "$JAR_
