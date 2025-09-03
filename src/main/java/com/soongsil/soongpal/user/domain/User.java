@@ -23,6 +23,7 @@ public class User extends BaseEntity {
   
     private String email;
     private String refreshToken;
+    private String fcmToken;
    
   
     @Builder
@@ -38,6 +39,10 @@ public class User extends BaseEntity {
 
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    public void updateFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
     }
 
 }
