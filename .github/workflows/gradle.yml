@@ -99,7 +99,5 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
-            # 기존에 실행 중이던 Java 애플리케이션 종료
-            pkill -f '.*\.jar'
-  
+            pkill -f '.*\.jar' || true
             nohup java -jar /home/ubuntu/*.jar > /dev/null 2>&1 &
