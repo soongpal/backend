@@ -84,20 +84,12 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         script: |
-          echo "--- 1. Listing all files in /home/ubuntu ---"
-          ls -la /home/ubuntu
-          
+          # Create configuration files from secrets
           echo "${{ secrets.APPLICATION_YAML }}" > /home/ubuntu/application.yaml
-          
           echo "${{ secrets.FIREBASE_KEY_JSON }}" > /home/ubuntu/firebase-service-key.json
           
-          echo "--- 2. Verifying contents of config files ---"
-          echo "--- application.yaml content ---"
-          cat /home/ubuntu/application.yaml
-          echo "--- firebase-service-key.json content ---"
-          cat /home/ubuntu/firebase-service-key.json
-          
+          # Stop the running application, if any
           pkill -f '.*\.jar' || true
           
-          echo "--- 3. Starting the application directly ---"
-          java -jar /home/ubuntu/*[!plain].jar --spring.config.location=file:/home/ubuntu/application.yaml
+          # Start the new application
+          nohup java -jar /home/ubuntu/*[!plain].jar --spring.config.location=file:/home/ubuntu/application.yaml < /dev/null > /dev/null 2>&1 &
