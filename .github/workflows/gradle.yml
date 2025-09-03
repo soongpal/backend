@@ -82,6 +82,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: soongpal
+          path: ./artifact
+     
+      - name: List files after download
+        run: ls -R
   
       - name: Transfer JAR to EC2
         uses: appleboy/scp-action@v0.1.4
@@ -89,7 +93,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          source: "soongpal/*[!plain].jar"
+          source: "artifact/*[!plain].jar"
           target: "/home/ubuntu"
   
       - name: Execute deployment script on EC2
