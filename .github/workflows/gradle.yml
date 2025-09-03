@@ -89,7 +89,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          source: "*[!plain].jar"
+          source: "soongpal/*[!plain].jar"
           target: "/home/ubuntu"
   
       - name: Execute deployment script on EC2
