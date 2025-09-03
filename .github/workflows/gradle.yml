@@ -42,8 +42,7 @@ jobs:
   dependency-submission:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      dependency-graph: write
+      contents: write
 
     steps:
     - uses: actions/checkout@v4
