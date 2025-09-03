@@ -121,6 +121,7 @@ public class BoardService {
                 String imageUrl = s3Uploader.uploadFile(imageFile, "board");
                 BoardImage newBoardImage = BoardImage.builder()
                         .imageUrl(imageUrl)
+                        .board(findBoard)
                         .build();
                 findBoard.addBoardImage(newBoardImage);
             }
@@ -222,5 +223,14 @@ public class BoardService {
     private User getUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+    }
+
+    @Transactional
+    public void deleteAllBoardsByUser(User user) {
+        List<Board> boardsToDelete = boardRepository.findAllByUser(user);
+        boardsToDelete.forEach(board -> {
+            board.getBoardImages().forEach(image -> s3Uploader.deleteFile(image.getImageUrl()));
+            boardRepository.delete(board);
+        });
     }
 }

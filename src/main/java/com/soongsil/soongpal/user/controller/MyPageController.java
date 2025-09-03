@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -48,8 +50,14 @@ public class MyPageController {
         return new ResponseEntity<>(new CommonResDto<>("작성한 게시글 조회 성공", dto), HttpStatus.OK);
     }
 
-    public Long getUserId() {
-        return 1L;
+    private Long getUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || "anonymousUser".equals(authentication.getPrincipal())) {
+            return 0L;
+        }
+
+        return Long.parseLong(authentication.getName());
     }
 
 }
