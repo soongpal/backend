@@ -71,3 +71,35 @@ jobs:
     # See: https://github.com/gradle/actions/blob/main/dependency-submission/README.md
     - name: Generate and submit dependency graph
       uses: gradle/actions/dependency-submission@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+  deploy:
+      needs: build # build 작업이 성공해야 실행됨
+      runs-on: ubuntu-latest
+      permissions:
+        contents: read
+  
+      steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: soongpal
+  
+      - name: Transfer JAR to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          source: "*.jar"
+          target: "/home/ubuntu"
+  
+      - name: Execute deployment script on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            # 기존에 실행 중이던 Java 애플리케이션 종료
+            pkill -f '.*\.jar'
+  
+            nohup java -jar /home/ubuntu/*.jar > /dev/null 2>&1 &
