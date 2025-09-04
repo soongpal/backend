@@ -5,6 +5,7 @@ import com.soongsil.soongpal.user.domain.User;
 import jakarta.persistence.*;
 
 import lombok.*;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity
+@Where(clause = "deleted_at IS NULL")
 public class Board extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -67,6 +69,11 @@ public class Board extends BaseEntity {
         this.url = null;
         this.price = null;
         this.user = null;
+    }
+
+    public void softDeleteByUser() {
+        this.deletedAt = LocalDateTime.now();
+        this.status = BoardStatus.DELETED;
     }
 
     public void removeBoardImage(Long imageId) {

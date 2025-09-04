@@ -149,17 +149,15 @@ public class BoardService {
         return BoardResDto.from(findBoard, likeCount, liked);
     }
 
-    public BoardResDto deleteBoard(Long id, Long userId) {
+    public void deleteBoard(Long id, Long userId) {
         User findUser = getUser(userId);
         Board findBoard = boardRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
         if (!findUser.equals(findBoard.getUser())) {
             throw new SecurityException("삭제 권한이 없습니다.");
         }
-        findBoard.getBoardImages().forEach(image -> s3Uploader.deleteFile(image.getImageUrl()));
 
-        boardRepository.deleteById(id);
-        return BoardResDto.from(findBoard, 0, false);
+        findBoard.softDeleteByUser();
     }
 
     public BoardPageResDto getFilteredBoards(String keyword, Long userId, BoardCategory category, BoardStatus status, int page) {

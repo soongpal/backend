@@ -104,8 +104,8 @@ public class BoardController {
     @Operation(method = "DELETE", summary = "게시글 삭제", description = "게시글을 삭제하기 위한 API")
     public ResponseEntity<CommonResDto<BoardResDto>> deleteBoard(@PathVariable Long id) {
         Long userId = getUserId();
-        BoardResDto dto = boardService.deleteBoard(id, userId);
-        return new ResponseEntity<>(new CommonResDto<>("게시글 삭제", dto), HttpStatus.OK);
+        boardService.deleteBoard(id, userId);
+        return new ResponseEntity<>(new CommonResDto<>("게시글 삭제", null), HttpStatus.OK);
     }
 
     @PostMapping("/{id}/like")
