@@ -21,7 +21,8 @@ public class AdminService {
                 .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다. ID: " + boardId));
 
         board.getBoardImages().forEach(image -> s3Uploader.deleteFile(image.getImageUrl()));
-
+        board.getBoardImages().clear();
+        board.markAsDeletedByAdmin();
         boardRepository.delete(board);
     }
 }

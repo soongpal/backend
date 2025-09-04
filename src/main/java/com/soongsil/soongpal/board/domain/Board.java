@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,6 +54,19 @@ public class Board extends BaseEntity {
     public void addBoardImage(BoardImage boardImage) {
         this.boardImages.add(boardImage);
         boardImage.setBoard(this);
+    }
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    public void markAsDeletedByAdmin() {
+        this.title = "삭제된 게시물";
+        this.content = "사용 규정에 위반되어 관리자에 의해 삭제된 게시물입니다.";
+        this.deletedAt = LocalDateTime.now();
+        this.status = BoardStatus.DELETED;
+        this.url = null;
+        this.price = null;
+        this.user = null;
     }
 
     public void removeBoardImage(Long imageId) {
