@@ -5,6 +5,7 @@ import com.soongsil.soongpal.chat.domain.ChatRoom;
 import com.soongsil.soongpal.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,11 +17,11 @@ import lombok.NoArgsConstructor;
 public class ChatMessageReqDto {
 
     @Schema(description = "채팅방 ID", example = "1")
-    @NotBlank
+    @NotNull
     private Long roomId;
 
     @Schema(description = "메시지 전송자 ID", example = "1")
-    @NotBlank
+    @NotNull
     private Long senderId;
 
     @Schema(description = "메시지 내용", example = "콜라 1.25L 공구하실 분 있나요? 2000원입니다")
