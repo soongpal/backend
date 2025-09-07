@@ -1,7 +1,10 @@
 package com.soongsil.soongpal.chat.service;
 
+import com.soongsil.soongpal.board.domain.Board;
+import com.soongsil.soongpal.board.repository.BoardRepository;
 import com.soongsil.soongpal.chat.domain.ChatRole;
 import com.soongsil.soongpal.chat.domain.ChatRoom;
+import com.soongsil.soongpal.chat.domain.ChatRoomType;
 import com.soongsil.soongpal.chat.domain.ChatRoomUser;
 import com.soongsil.soongpal.chat.dto.ChatMessageResDto;
 import com.soongsil.soongpal.chat.dto.ChatRoomCreateReqDto;
@@ -30,13 +33,19 @@ import static com.soongsil.soongpal.chat.domain.ChatRoomType.PRIVATE;
 public class ChatRoomService {
 
     private final UserRepository userRepository;
+    private final BoardRepository boardRepository;
+
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomUserRepository chatRoomUserRepository;
 
-    public ChatRoomResDto createChatRoom(ChatRoomCreateReqDto dto, Long userId) {
+    public ChatRoomResDto createPrivateChatRoom(ChatRoomCreateReqDto dto, Long userId) {
         ChatRoom savedRoom = chatRoomRepository.save(ChatRoomCreateReqDto.toEntity(dto.getName(), PRIVATE));
         User findUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ChatException(ChatErrorCode.USER_NOT_FOUND));
+        Board findBoard = boardRepository.findById(dto.getBoardId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+        userRepository.findById(findBoard.getUser().getId())
                 .orElseThrow(() -> new ChatException(ChatErrorCode.USER_NOT_FOUND));
 
         ChatRoomUser roomUser = ChatRoomUser.builder()
@@ -44,7 +53,17 @@ public class ChatRoomService {
                 .user(findUser)
                 .role(ChatRole.OWNER)
                 .build();
+
+        ChatRoomUser roomOwner = ChatRoomUser.builder()
+                .chatRoom(savedRoom)
+                .user(findBoard.getUser())
+                .role(ChatRole.OWNER)
+                .build();
+
+        chatRoomUserRepository.save(roomOwner);
         chatRoomUserRepository.save(roomUser);
+
+        savedRoom.addUser(roomOwner);
         savedRoom.addUser(roomUser);
 
         return convertToChatRoomResDto(savedRoom);
@@ -82,6 +101,10 @@ public class ChatRoomService {
     public void joinChatRoom(Long roomId, Long userId) {
         ChatRoom findChatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_FOUND));
+        
+        if (findChatRoom.getType() == PRIVATE) {
+            throw new ChatException(ChatErrorCode.CHAT_ROOM_ACCESS_DENIED);
+        }
 
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.USER_NOT_FOUND));
@@ -102,6 +125,11 @@ public class ChatRoomService {
     public void leaveChatRoom(Long roomId, Long userId) {
         ChatRoom findChatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_FOUND));
+
+        if (findChatRoom.getType() == PRIVATE) {
+            throw new ChatException(ChatErrorCode.CHAT_ROOM_ACCESS_DENIED);
+        }
+
         ChatRoomUser roomUser = chatRoomUserRepository.findByChatRoomIdAndUserId(roomId, userId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_JOINED));
         chatRoomUserRepository.delete(roomUser);
@@ -111,8 +139,10 @@ public class ChatRoomService {
     public void deleteChatRoom(Long roomId, Long userId) {
         ChatRoom chatRoom = chatRoomRepository.findChatRoomByIdAndUserId(roomId, userId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_DELETE_DENIED));
+
         ChatRoomUser roomUser = chatRoomUserRepository.findByChatRoomIdAndUserId(roomId, userId)
                         .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_JOINED));
+
         if (roomUser.getRole().equals(ChatRole.MEMBER)) {
             throw new ChatException(ChatErrorCode.CHAT_ROOM_DELETE_DENIED);
         }

@@ -41,7 +41,7 @@ public class ChatRoomController {
             @Parameter(description = "채팅방 생성 요청 정보") @Valid @RequestBody ChatRoomCreateReqDto dto
     ) {
         Long userId = getUserId();
-        ChatRoomResDto chatRoom = chatRoomService.createChatRoom(dto, userId);
+        ChatRoomResDto chatRoom = chatRoomService.createPrivateChatRoom(dto, userId);
         return new ResponseEntity<>(new CommonResDto<>("채팅방이 생성되었습니다.", chatRoom), HttpStatus.OK);
     }
 
@@ -127,7 +127,7 @@ public class ChatRoomController {
     }
 
     private Long getUserId() {
-        return 1L;
+        return 3L;
     }
 
 }
