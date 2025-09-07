@@ -5,6 +5,7 @@ import com.soongsil.soongpal.board.dto.*;
 import com.soongsil.soongpal.board.repository.BoardImageRepository;
 import com.soongsil.soongpal.board.repository.BoardRepository;
 import com.soongsil.soongpal.board.repository.LikeRepository;
+import com.soongsil.soongpal.chat.service.ChatRoomService;
 import com.soongsil.soongpal.common.file.S3Uploader;
 import com.soongsil.soongpal.user.domain.User;
 import com.soongsil.soongpal.user.repository.UserRepository;
@@ -32,6 +33,7 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
+    private final ChatRoomService chatRoomService;
     private final S3Uploader s3Uploader;
     private final BoardImageRepository boardImageRepository;
 
@@ -58,6 +60,10 @@ public class BoardService {
                     board.addBoardImage(boardImage);
                 }
             }
+        }
+
+        if (board.getCategory() == BoardCategory.GROUP) {
+            chatRoomService.createGroupChatRoom(userId, boardCreateReqDto.getTitle());
         }
 
         return BoardResDto.from(board, 0, false);

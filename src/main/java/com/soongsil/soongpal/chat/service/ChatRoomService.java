@@ -20,6 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.soongsil.soongpal.chat.domain.ChatRoomType.GROUP;
+import static com.soongsil.soongpal.chat.domain.ChatRoomType.PRIVATE;
+
 
 @Service
 @Transactional
@@ -32,7 +35,23 @@ public class ChatRoomService {
     private final ChatRoomUserRepository chatRoomUserRepository;
 
     public ChatRoomResDto createChatRoom(ChatRoomCreateReqDto dto, Long userId) {
-        ChatRoom savedRoom = chatRoomRepository.save(ChatRoomCreateReqDto.toEntity(dto));
+        ChatRoom savedRoom = chatRoomRepository.save(ChatRoomCreateReqDto.toEntity(dto.getName(), PRIVATE));
+        User findUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ChatException(ChatErrorCode.USER_NOT_FOUND));
+
+        ChatRoomUser roomUser = ChatRoomUser.builder()
+                .chatRoom(savedRoom)
+                .user(findUser)
+                .role(ChatRole.OWNER)
+                .build();
+        chatRoomUserRepository.save(roomUser);
+        savedRoom.addUser(roomUser);
+
+        return convertToChatRoomResDto(savedRoom);
+    }
+
+    public ChatRoomResDto createGroupChatRoom(Long userId, String chatRoomName) {
+        ChatRoom savedRoom = chatRoomRepository.save(ChatRoomCreateReqDto.toEntity(chatRoomName, GROUP));
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.USER_NOT_FOUND));
 

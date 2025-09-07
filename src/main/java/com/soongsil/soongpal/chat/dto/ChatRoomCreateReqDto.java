@@ -4,7 +4,6 @@ import com.soongsil.soongpal.chat.domain.ChatRoom;
 import com.soongsil.soongpal.chat.domain.ChatRoomType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,14 +19,10 @@ public class ChatRoomCreateReqDto {
     @NotBlank
     private String name;
 
-    @Schema(description = "채팅방 타입", example = "GROUP")
-    @NotNull
-    private ChatRoomType type;
-
-    public static ChatRoom toEntity(ChatRoomCreateReqDto dto) {
+    public static ChatRoom toEntity(String name, ChatRoomType type) {
         return ChatRoom.builder()
-                .name(dto.getName())
-                .type(dto.getType())
+                .name(name)
+                .type(type)
                 .build();
     }
 }
