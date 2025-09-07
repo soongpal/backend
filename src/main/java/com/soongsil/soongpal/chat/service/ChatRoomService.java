@@ -4,7 +4,6 @@ import com.soongsil.soongpal.board.domain.Board;
 import com.soongsil.soongpal.board.repository.BoardRepository;
 import com.soongsil.soongpal.chat.domain.ChatRole;
 import com.soongsil.soongpal.chat.domain.ChatRoom;
-import com.soongsil.soongpal.chat.domain.ChatRoomType;
 import com.soongsil.soongpal.chat.domain.ChatRoomUser;
 import com.soongsil.soongpal.chat.dto.ChatMessageResDto;
 import com.soongsil.soongpal.chat.dto.ChatRoomCreateReqDto;
@@ -40,7 +39,7 @@ public class ChatRoomService {
     private final ChatRoomUserRepository chatRoomUserRepository;
 
     public ChatRoomResDto createPrivateChatRoom(ChatRoomCreateReqDto dto, Long userId) {
-        ChatRoom savedRoom = chatRoomRepository.save(ChatRoomCreateReqDto.toEntity(dto.getName(), PRIVATE));
+        ChatRoom savedRoom = chatRoomRepository.save(ChatRoomCreateReqDto.toEntity(dto.getName(), PRIVATE, dto.getBoardId()));
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.USER_NOT_FOUND));
         Board findBoard = boardRepository.findById(dto.getBoardId())
@@ -69,8 +68,8 @@ public class ChatRoomService {
         return convertToChatRoomResDto(savedRoom);
     }
 
-    public ChatRoomResDto createGroupChatRoom(Long userId, String chatRoomName) {
-        ChatRoom savedRoom = chatRoomRepository.save(ChatRoomCreateReqDto.toEntity(chatRoomName, GROUP));
+    public ChatRoomResDto createGroupChatRoom(Long userId, String chatRoomName, Long boardId) {
+        ChatRoom savedRoom = chatRoomRepository.save(ChatRoomCreateReqDto.toEntity(chatRoomName, GROUP, boardId));
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.USER_NOT_FOUND));
 
@@ -98,8 +97,11 @@ public class ChatRoomService {
                 .toList();
     }
 
-    public void joinChatRoom(Long roomId, Long userId) {
-        ChatRoom findChatRoom = chatRoomRepository.findById(roomId)
+    public void joinChatRoom(Long boardId, Long userId) {
+        boardRepository.findById(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        ChatRoom findChatRoom = chatRoomRepository.findByBoardId(boardId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_FOUND));
         
         if (findChatRoom.getType() == PRIVATE) {
@@ -109,7 +111,7 @@ public class ChatRoomService {
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.USER_NOT_FOUND));
 
-        boolean alreadyJoined = chatRoomUserRepository.findByChatRoomIdAndUserId(roomId, userId).isPresent();
+        boolean alreadyJoined = chatRoomUserRepository.findByChatRoomIdAndUserId(findChatRoom.getId(), userId).isPresent();
         if (alreadyJoined) {
             throw new ChatException(ChatErrorCode.CHAT_ROOM_ALREADY_JOINED);
         }
@@ -122,15 +124,18 @@ public class ChatRoomService {
         findChatRoom.addUser(roomUser);
     }
 
-    public void leaveChatRoom(Long roomId, Long userId) {
-        ChatRoom findChatRoom = chatRoomRepository.findById(roomId)
+    public void leaveChatRoom(Long boardId, Long userId) {
+        boardRepository.findById(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        ChatRoom findChatRoom = chatRoomRepository.findByBoardId(boardId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_FOUND));
 
         if (findChatRoom.getType() == PRIVATE) {
             throw new ChatException(ChatErrorCode.CHAT_ROOM_ACCESS_DENIED);
         }
 
-        ChatRoomUser roomUser = chatRoomUserRepository.findByChatRoomIdAndUserId(roomId, userId)
+        ChatRoomUser roomUser = chatRoomUserRepository.findByChatRoomIdAndUserId(findChatRoom.getId(), userId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_JOINED));
         chatRoomUserRepository.delete(roomUser);
         findChatRoom.removeUser(roomUser);

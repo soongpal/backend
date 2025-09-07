@@ -23,10 +23,11 @@ public class ChatRoomCreateReqDto {
     @NotNull
     private Long boardId;
 
-    public static ChatRoom toEntity(String name, ChatRoomType type) {
+    public static ChatRoom toEntity(String name, ChatRoomType type, Long boardId) {
         return ChatRoom.builder()
                 .name(name)
                 .type(type)
+                .boardId(boardId)
                 .build();
     }
 }

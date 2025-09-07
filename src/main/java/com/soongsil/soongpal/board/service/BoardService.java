@@ -44,12 +44,10 @@ public class BoardService {
 
         User findUser = getUser(userId);
         Board board = BoardCreateReqDto.toEntity(boardCreateReqDto, findUser);
-        boardRepository.save(board);
+        Board savedBoard = boardRepository.save(board);
 
-        // 이미지 파일이 이씅면
         if (images != null && !images.isEmpty()) {
             for (MultipartFile imageFile : images) {
-                // S3에 이미지 업로드하고 "board" 디렉토리 아래에 저장
                 String imageUrl = s3Uploader.uploadFile(imageFile, "board");
                 if (imageUrl != null) {
                     BoardImage boardImage = BoardImage.builder()
@@ -62,8 +60,8 @@ public class BoardService {
             }
         }
 
-        if (board.getCategory() == BoardCategory.GROUP) {
-            chatRoomService.createGroupChatRoom(userId, boardCreateReqDto.getTitle());
+        if (savedBoard.getCategory() == BoardCategory.GROUP) {
+            chatRoomService.createGroupChatRoom(userId, boardCreateReqDto.getTitle(), savedBoard.getId());
         }
 
         return BoardResDto.from(board, 0, false);

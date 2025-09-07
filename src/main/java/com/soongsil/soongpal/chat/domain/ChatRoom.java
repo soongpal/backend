@@ -25,6 +25,8 @@ public class ChatRoom extends BaseEntity {
     private ChatRoomType type;
 
     private String name;
+    
+    private Long boardId;
 
     @Builder.Default
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
