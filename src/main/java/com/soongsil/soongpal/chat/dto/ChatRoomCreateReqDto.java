@@ -20,14 +20,14 @@ public class ChatRoomCreateReqDto {
     @NotBlank
     private String name;
 
-    @Schema(description = "채팅방 타입", example = "GROUP")
     @NotNull
-    private ChatRoomType type;
+    private Long boardId;
 
-    public static ChatRoom toEntity(ChatRoomCreateReqDto dto) {
+    public static ChatRoom toEntity(String name, ChatRoomType type, Long boardId) {
         return ChatRoom.builder()
-                .name(dto.getName())
-                .type(dto.getType())
+                .name(name)
+                .type(type)
+                .boardId(boardId)
                 .build();
     }
 }

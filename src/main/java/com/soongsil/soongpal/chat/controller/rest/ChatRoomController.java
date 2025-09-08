@@ -41,7 +41,7 @@ public class ChatRoomController {
             @Parameter(description = "채팅방 생성 요청 정보") @Valid @RequestBody ChatRoomCreateReqDto dto
     ) {
         Long userId = getUserId();
-        ChatRoomResDto chatRoom = chatRoomService.createChatRoom(dto, userId);
+        ChatRoomResDto chatRoom = chatRoomService.createPrivateChatRoom(dto, userId);
         return new ResponseEntity<>(new CommonResDto<>("채팅방이 생성되었습니다.", chatRoom), HttpStatus.OK);
     }
 
@@ -82,11 +82,11 @@ public class ChatRoomController {
             @ApiResponse(responseCode = "409", description = "이미 참가한 채팅방입니다.",
                     content = @Content(schema = @Schema(implementation = CommonResDto.class)))
     })
-    @PostMapping("/{roomId}/join")
+    @PostMapping("/{boardId}/join")
     public ResponseEntity<CommonResDto<String>> joinChatRoom(
-            @Parameter(description = "채팅방 ID") @PathVariable Long roomId) {
+            @Parameter(description = "게시글 ID") @PathVariable Long boardId) {
         Long userId = getUserId();
-        chatRoomService.joinChatRoom(roomId, userId);
+        chatRoomService.joinChatRoom(boardId, userId);
         return new ResponseEntity<>(new CommonResDto<>("채팅방에 참가했습니다.", "성공"), HttpStatus.OK);
     }
 
@@ -99,11 +99,11 @@ public class ChatRoomController {
             @ApiResponse(responseCode = "400", description = "참가하지 않은 채팅방입니다.",
                     content = @Content(schema = @Schema(implementation = CommonResDto.class)))
     })
-    @PostMapping("/{roomId}/leave")
+    @PostMapping("/{boardId}/leave")
     public ResponseEntity<CommonResDto<String>> leaveChatRoom(
-            @Parameter(description = "채팅방 ID") @PathVariable Long roomId) {
+            @Parameter(description = "게시글 ID") @PathVariable Long boardId) {
         Long userId = getUserId();
-        chatRoomService.leaveChatRoom(roomId, userId);
+        chatRoomService.leaveChatRoom(boardId, userId);
         return new ResponseEntity<>(new CommonResDto<>("채팅방을 나갔습니다.", "성공"), HttpStatus.OK);
     }
 
@@ -127,7 +127,7 @@ public class ChatRoomController {
     }
 
     private Long getUserId() {
-        return 1L;
+        return 2L;
     }
 
 }
