@@ -99,7 +99,7 @@ public class ChatRoomController {
             @ApiResponse(responseCode = "400", description = "참가하지 않은 채팅방입니다.",
                     content = @Content(schema = @Schema(implementation = CommonResDto.class)))
     })
-    @PostMapping("/{boardId}/leave")
+    @DeleteMapping("/{boardId}/leave")
     public ResponseEntity<CommonResDto<String>> leaveChatRoom(
             @Parameter(description = "게시글 ID") @PathVariable Long boardId) {
         Long userId = getUserId();
