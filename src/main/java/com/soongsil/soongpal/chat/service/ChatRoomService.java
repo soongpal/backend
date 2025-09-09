@@ -74,7 +74,7 @@ public class ChatRoomService {
     }
 
     public ChatRoomResDto createGroupChatRoom(Long userId, String chatRoomName, Long boardId) {
-        ChatRoom savedRoom = chatRoomRepository.save(ChatRoomCreateReqDto.toEntity(chatRoomName, GROUP, boardId));
+        ChatRoom savedRoom = chatRoomRepository.save(ChatRoomCreateReqDto.toEntity(GROUP, boardId));
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.USER_NOT_FOUND));
 
@@ -86,7 +86,11 @@ public class ChatRoomService {
         chatRoomUserRepository.save(roomUser);
         savedRoom.addUser(roomUser);
 
-        return convertToChatRoomResDto(savedRoom);
+        List<ChatRoomUserResDto> users = savedRoom.getChatRoomUsers().stream()
+                .map(ChatRoomUserResDto::from)
+                .toList();
+
+        return ChatRoomResDto.of(savedRoom, chatRoomName, chatRoomName, users, null);
     }
 
     public ChatRoomResDto getChatRoom(Long roomId, Long userId) {
