@@ -69,6 +69,7 @@ public class Board extends BaseEntity {
         this.url = null;
         this.price = null;
         this.user = null;
+        this.location = null;
     }
 
     public void softDeleteByUser() {
