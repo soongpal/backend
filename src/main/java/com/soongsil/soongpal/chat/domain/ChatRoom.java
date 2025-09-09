@@ -24,8 +24,6 @@ public class ChatRoom extends BaseEntity {
     @Column(nullable = false)
     private ChatRoomType type;
 
-    private String name;
-    
     private Long boardId;
 
     @Builder.Default

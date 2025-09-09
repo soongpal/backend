@@ -16,16 +16,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ChatRoomCreateReqDto {
 
-    @Schema(description = "채팅방 이름", example = "콜라 공구 채팅방")
-    @NotBlank
-    private String name;
-
     @NotNull
     private Long boardId;
 
-    public static ChatRoom toEntity(String name, ChatRoomType type, Long boardId) {
+    public static ChatRoom toEntity(ChatRoomType type, Long boardId) {
         return ChatRoom.builder()
-                .name(name)
                 .type(type)
                 .boardId(boardId)
                 .build();
