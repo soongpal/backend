@@ -149,6 +149,7 @@ public class BoardService {
         return BoardResDto.from(findBoard, likeCount, liked);
     }
 
+    @Transactional
     public void deleteBoard(Long id, Long userId) {
         User findUser = getUser(userId);
         Board findBoard = boardRepository.findById(id)
