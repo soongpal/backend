@@ -1,6 +1,7 @@
 package com.soongsil.soongpal.chat.service;
 
 import com.soongsil.soongpal.board.domain.Board;
+import com.soongsil.soongpal.board.domain.BoardCategory;
 import com.soongsil.soongpal.board.repository.BoardRepository;
 import com.soongsil.soongpal.chat.domain.ChatRole;
 import com.soongsil.soongpal.chat.domain.ChatRoom;
@@ -96,7 +97,22 @@ public class ChatRoomService {
     public ChatRoomResDto getChatRoom(Long roomId, Long userId) {
         ChatRoom chatRoom = chatRoomRepository.findChatRoomByIdAndUserId(roomId, userId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_ACCESS_DENIED));
-        return convertToChatRoomResDto(chatRoom);
+
+        Board findBoard = boardRepository.findById(chatRoom.getBoardId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        List<ChatRoomUserResDto> users = chatRoom.getChatRoomUsers().stream()
+                .map(ChatRoomUserResDto::from)
+                .toList();
+
+        ChatMessageResDto lastMessage = chatMessageRepository.findLastMessageByRoomId(chatRoom.getId())
+                .map(ChatMessageResDto::from)
+                .orElse(null);
+
+        if (findBoard.getCategory() == BoardCategory.USED) {
+            return ChatRoomResDto.of(chatRoom, findBoard.getUser().getNickName(), findBoard.getTitle() , users, lastMessage);
+        }
+        return ChatRoomResDto.of(chatRoom, findBoard.getTitle(), findBoard.getTitle() , users, lastMessage);
     }
 
     public List<ChatRoomResDto> getChatRoomsByUser(Long userId) {
