@@ -35,7 +35,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: soongpal
-        path: build/libs/*[!plain].jar
+        path: build/libs/
 
   deploy:
     needs: build
