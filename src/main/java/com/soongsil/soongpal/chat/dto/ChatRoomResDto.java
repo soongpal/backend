@@ -19,6 +19,7 @@ public class ChatRoomResDto {
 
     private Long id;
     private String name;
+    private String productTitle;
     private ChatRoomType type;
     private int userCount;
     private List<ChatRoomUserResDto> users;
@@ -26,10 +27,11 @@ public class ChatRoomResDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static ChatRoomResDto of(ChatRoom chatRoom, List<ChatRoomUserResDto> users, ChatMessageResDto lastMessage) {
+    public static ChatRoomResDto of(ChatRoom chatRoom, String name, String productTitle, List<ChatRoomUserResDto> users, ChatMessageResDto lastMessage) {
         return ChatRoomResDto.builder()
                 .id(chatRoom.getId())
-                .name(chatRoom.getName())
+                .name(name)
+                .productTitle(productTitle)
                 .type(chatRoom.getType())
                 .userCount(chatRoom.getChatRoomUsers().size())
                 .users(users)
