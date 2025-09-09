@@ -118,7 +118,23 @@ public class ChatRoomService {
     public List<ChatRoomResDto> getChatRoomsByUser(Long userId) {
         List<ChatRoom> chatRooms = chatRoomRepository.findChatRoomsByUserId(userId);
         return chatRooms.stream()
-                .map(this::convertToChatRoomResDto)
+                .map(c -> {
+                    Board findBoard = boardRepository.findById(c.getBoardId())
+                            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+                    List<ChatRoomUserResDto> users = c.getChatRoomUsers().stream()
+                            .map(ChatRoomUserResDto::from)
+                            .toList();
+
+                    ChatMessageResDto lastMessage = chatMessageRepository.findLastMessageByRoomId(c.getId())
+                            .map(ChatMessageResDto::from)
+                            .orElse(null);
+
+                    if (findBoard.getCategory() == BoardCategory.USED) {
+                        return ChatRoomResDto.of(c, findBoard.getUser().getNickName(), findBoard.getTitle() , users, lastMessage);
+                    }
+                    return ChatRoomResDto.of(c, findBoard.getTitle(), findBoard.getTitle() , users, lastMessage);
+                })
                 .toList();
     }
 
