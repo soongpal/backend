@@ -42,8 +42,7 @@ public class SecurityConfig {
                             "/api/auth/**",
                             "/swagger-ui.html",
                             "/swagger-ui/**",
-                            "/v3/api-docs/**",
-                            "/**" // 개발용
+                            "/v3/api-docs/**"
                     ).permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/board/**").permitAll()
                     .anyRequest().authenticated()
