@@ -68,7 +68,6 @@ public class Board extends BaseEntity {
         this.status = BoardStatus.DELETED;
         this.url = null;
         this.price = null;
-        this.user = null;
         this.location = null;
     }
 
