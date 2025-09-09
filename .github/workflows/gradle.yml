@@ -43,13 +43,16 @@ jobs:
         name: soongpal
         path: ./artifact
 
+    - name: 불필요한 plain.jar 파일 삭제
+      run: rm artifact/*-plain.jar
+
     - name: Transfer JAR to EC2
       uses: appleboy/scp-action@v0.1.4
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_PRIVATE_KEY }}
-        source: "artifact/*[!plain].jar"
+        source: "artifact/*.jar"
         target: "/home/ubuntu"
 
     - name: Execute final production deployment script
