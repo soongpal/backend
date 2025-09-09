@@ -23,6 +23,5 @@ public class AdminService {
         board.getBoardImages().forEach(image -> s3Uploader.deleteFile(image.getImageUrl()));
         board.getBoardImages().clear();
         board.markAsDeletedByAdmin();
-        boardRepository.delete(board);
     }
 }
