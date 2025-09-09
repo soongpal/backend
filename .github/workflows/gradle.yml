@@ -23,10 +23,7 @@ jobs:
 
     - name: Build with Gradle Wrapper
       run: ./gradlew build -x test
-
-    - name: 🧐 빌드 결과물 확인 (디버깅용)
-      run: ls -l build/libs/
-
+      
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
       with:
@@ -46,16 +43,13 @@ jobs:
         name: soongpal
         path: ./artifact
 
-    - name: 🧐 다운로드된 아티팩트 확인 (디버깅용)
-      run: ls -lR artifact/
-
     - name: Transfer JAR to EC2
       uses: appleboy/scp-action@v0.1.4
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_PRIVATE_KEY }}
-        source: "artifact/*.jar"
+        source: "artifact/*[!plain].jar"
         target: "/home/ubuntu"
 
     - name: Execute final production deployment script
