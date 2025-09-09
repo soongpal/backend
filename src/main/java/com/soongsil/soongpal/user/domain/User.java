@@ -27,11 +27,15 @@ public class User extends BaseEntity {
     private String fcmToken;
    
 
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     @Builder
     public User(String kakaoId, String nickName, String email) {
         this.kakaoId = kakaoId;
         this.nickName = nickName;
         this.email = email;
+        this.role = Role.USER;
     }
 
     public void updateNickname(String nickName) {

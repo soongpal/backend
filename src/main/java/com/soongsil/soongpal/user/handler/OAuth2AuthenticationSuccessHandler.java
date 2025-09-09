@@ -1,5 +1,6 @@
 package com.soongsil.soongpal.user.handler;
 
+import com.soongsil.soongpal.user.domain.Role;
 import com.soongsil.soongpal.user.service.jwt.JwtTokenProvider;
 import com.soongsil.soongpal.user.dto.PrincipalDetails;
 import com.soongsil.soongpal.user.service.AuthService;
@@ -47,7 +48,9 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         } else {
             log.info("### SUCCESS HANDLER: User is identified as EXISTING USER. Setting cookie.");
             String userId = String.valueOf(principalDetails.getUser().getId());
-            String accessToken = jwtTokenProvider.createAccessToken(userId);
+            Role userRole = principalDetails.getUser().getRole();
+
+            String accessToken = jwtTokenProvider.createAccessToken(userId, userRole);
             String refreshToken = jwtTokenProvider.createRefreshToken(userId);
 
             authService.updateRefreshToken(Long.parseLong(userId), refreshToken);

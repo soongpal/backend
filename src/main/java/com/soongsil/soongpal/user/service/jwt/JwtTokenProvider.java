@@ -1,5 +1,6 @@
 package com.soongsil.soongpal.user.service.jwt;
 
+import com.soongsil.soongpal.user.domain.Role;
 import com.soongsil.soongpal.user.dto.OAuthAttributes;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -9,11 +10,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 
@@ -41,8 +45,8 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createAccessToken(String userId) {
-        return createToken(userId, accessTokenValidityInMilliseconds);
+    public String createAccessToken(String userId, Role role) {
+        return createToken(userId, role, accessTokenValidityInMilliseconds);
     }
 
     public String createRefreshToken(String userId) {
@@ -62,16 +66,29 @@ public class JwtTokenProvider {
             .compact();
     }
 
-    private String createToken(String subject, long validityMilliseconds) {
+    private String createToken(String subject, Role role, long validityMilliseconds) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityMilliseconds);
 
         return Jwts.builder()
             .setSubject(subject)
+            .claim("auth", role.name())
             .setIssuedAt(now)
             .signWith(key, SignatureAlgorithm.HS512)
             .setExpiration(validity)
             .compact();
+    }
+
+    private String createToken(String subject, long validityMilliseconds) {
+        Date now = new Date();
+        Date validity = new Date(now.getTime() + validityMilliseconds);
+
+        return Jwts.builder()
+                .setSubject(subject)
+                .setIssuedAt(now)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .setExpiration(validity)
+                .compact();
     }
 
     public OAuthAttributes getAttributesFromTempToken(String token) {
@@ -88,13 +105,18 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String token) {
         Claims claims = parseClaims(token);
 
-        if (claims.getSubject() == null || claims.getSubject().isEmpty()) {
-            log.error(">>>>> [JwtTokenProvider] Subject is null or empty. This might be a temp_token used as an access_token.");
-            return null;
+        if (claims.get("auth") == null) {
+            log.error(">>>>> [JwtTokenProvider] 권한 정보가 없는 토큰입니다.");
+            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
         }
 
-        UserDetails userDetails = new User(claims.getSubject(), "", Collections.emptyList());
-        return new UsernamePasswordAuthenticationToken(userDetails, token, Collections.emptyList());
+        String roleName = claims.get("auth", String.class);
+        Collection<? extends GrantedAuthority> authorities =
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + roleName));
+
+        UserDetails principal = new User(claims.getSubject(), "", authorities);
+
+        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
 
     public boolean validateToken(String token) {
@@ -119,6 +141,10 @@ public class JwtTokenProvider {
             .build()
             .parseClaimsJws(token)
             .getBody();
+    }
+
+    public String getUserIdFromToken(String token) {
+        return parseClaims(token).getSubject();
     }
 
     public long getRefreshTokenValidityInMilliseconds() {

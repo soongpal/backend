@@ -2,6 +2,7 @@ package com.soongsil.soongpal.user.service;
 
 import com.soongsil.soongpal.board.repository.LikeRepository;
 import com.soongsil.soongpal.board.service.BoardService;
+import com.soongsil.soongpal.user.domain.Role;
 import com.soongsil.soongpal.user.service.jwt.JwtTokenProvider;
 import com.soongsil.soongpal.user.domain.User;
 import com.soongsil.soongpal.user.dto.*;
@@ -47,7 +48,9 @@ public class AuthService {
         userRepository.save(newUser);
 
         String userId = String.valueOf(newUser.getId());
-        String accessToken = jwtTokenProvider.createAccessToken(userId);
+        Role userRole = newUser.getRole();
+
+        String accessToken = jwtTokenProvider.createAccessToken(userId, userRole);
         String refreshToken = jwtTokenProvider.createRefreshToken(userId);
 
         newUser.updateRefreshToken(refreshToken);
@@ -131,8 +134,8 @@ public class AuthService {
             throw new IllegalArgumentException("유효하지 않은 리프레시 토큰입니다.");
         }
 
-        Authentication authentication = jwtTokenProvider.getAuthentication(refreshToken);
-        Long userId = Long.parseLong(authentication.getName());
+        String userIdStr = jwtTokenProvider.getUserIdFromToken(refreshToken);
+        Long userId = Long.parseLong(userIdStr);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
@@ -141,7 +144,9 @@ public class AuthService {
             throw new IllegalArgumentException("DB의 리프레시 토큰과 일치하지 않습니다.");
         }
 
-        String newAccessToken = jwtTokenProvider.createAccessToken(String.valueOf(userId));
+        Role userRole = user.getRole();
+
+        String newAccessToken = jwtTokenProvider.createAccessToken(String.valueOf(userId), userRole);
 
         return new TokenRefreshResponseDto(newAccessToken);
     }

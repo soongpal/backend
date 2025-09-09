@@ -19,7 +19,7 @@ public class PrincipalDetails implements OAuth2User {
 
     public PrincipalDetails(User user) {
         this.user = user;
-        this.role = "ROLE_USER";
+        this.role = "ROLE_" + user.getRole().name();
     }
 
     public PrincipalDetails(OAuthAttributes oauthAttributes, String role) {

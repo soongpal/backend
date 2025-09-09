@@ -11,6 +11,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -18,11 +20,23 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
     private final JwtTokenProvider jwtTokenProvider;
 
+    private final List<String> excludedPaths = Arrays.asList(
+            "/api/auth/register",
+            "/api/auth/refresh"
+    );
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+
+        String requestURI = httpServletRequest.getRequestURI();
+        if (excludedPaths.stream().anyMatch(requestURI::startsWith)) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         String token = resolveToken(httpServletRequest);
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
