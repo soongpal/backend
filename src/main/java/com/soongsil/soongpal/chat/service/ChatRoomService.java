@@ -39,12 +39,12 @@ public class ChatRoomService {
     private final ChatRoomUserRepository chatRoomUserRepository;
 
     public ChatRoomResDto createPrivateChatRoom(ChatRoomCreateReqDto dto, Long userId) {
-        ChatRoom savedRoom = chatRoomRepository.save(ChatRoomCreateReqDto.toEntity(dto.getName(), PRIVATE, dto.getBoardId()));
+        ChatRoom savedRoom = chatRoomRepository.save(ChatRoomCreateReqDto.toEntity(PRIVATE, dto.getBoardId()));
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.USER_NOT_FOUND));
         Board findBoard = boardRepository.findById(dto.getBoardId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
-        userRepository.findById(findBoard.getUser().getId())
+        User boardUser = userRepository.findById(findBoard.getUser().getId())
                 .orElseThrow(() -> new ChatException(ChatErrorCode.USER_NOT_FOUND));
 
         ChatRoomUser roomUser = ChatRoomUser.builder()
@@ -65,7 +65,12 @@ public class ChatRoomService {
         savedRoom.addUser(roomOwner);
         savedRoom.addUser(roomUser);
 
-        return convertToChatRoomResDto(savedRoom);
+
+        List<ChatRoomUserResDto> users = savedRoom.getChatRoomUsers().stream()
+                .map(ChatRoomUserResDto::from)
+                .toList();
+
+        return ChatRoomResDto.of(savedRoom, boardUser.getNickName(), findBoard.getTitle(), users, null);
     }
 
     public ChatRoomResDto createGroupChatRoom(Long userId, String chatRoomName, Long boardId) {
