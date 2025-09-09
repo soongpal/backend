@@ -195,16 +195,4 @@ public class ChatRoomService {
         chatRoomRepository.delete(chatRoom);
     }
 
-    private ChatRoomResDto convertToChatRoomResDto(ChatRoom chatRoom) {
-        List<ChatRoomUserResDto> users = chatRoom.getChatRoomUsers().stream()
-                .map(ChatRoomUserResDto::from)
-                .toList();
-
-        ChatMessageResDto lastMessage = chatMessageRepository.findLastMessageByRoomId(chatRoom.getId())
-                .map(ChatMessageResDto::from)
-                .orElse(null);
-
-        return ChatRoomResDto.of(chatRoom, users, lastMessage);
-    }
-
 }
