@@ -162,7 +162,7 @@ public class BoardService {
     }
 
     public BoardPageResDto getFilteredBoards(String keyword, Long userId, BoardCategory category, BoardStatus status, int page) {
-        Pageable pageable = PageRequest.of(page, 15, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, 20, Sort.by("createdAt").descending());
         Page<Board> boardsPage;
 
         if (keyword != null && !keyword.isEmpty()) {
