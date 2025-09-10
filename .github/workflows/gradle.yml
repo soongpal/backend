@@ -72,6 +72,3 @@ jobs:
           mv /home/ubuntu/artifact/soongpal-0.0.1-SNAPSHOT.jar /home/ubuntu/soongpal-0.0.1-SNAPSHOT.jar
           
           sudo systemctl restart soongpal
-
-          
-          sudo systemctl restart soongpal
