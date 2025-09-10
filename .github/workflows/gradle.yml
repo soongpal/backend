@@ -66,8 +66,8 @@ jobs:
           
           mkdir -p /home/ubuntu/firebase
           echo "${{ secrets.APPLICATION_YAML }}" > /home/ubuntu/application.yaml
-          printf '%s' "${{ secrets.FIREBASE_KEY_JSON }}" > /home/ubuntu/firebase/soongpal2-65857-firebase-adminsdk-fbsvc-37398551d6.json
-          
+          echo "${{ secrets.FIREBASE_KEY_JSON_BASE64 }}" | base64 --decode > /home/ubuntu/firebase/soongpal2-65857-firebase-adminsdk-fbsvc-37398551d6.json
+  
           rm -f /home/ubuntu/soongpal-0.0.1-SNAPSHOT.jar
           mv /home/ubuntu/artifact/soongpal-0.0.1-SNAPSHOT.jar /home/ubuntu/soongpal-0.0.1-SNAPSHOT.jar
           
