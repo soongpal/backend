@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -45,7 +47,12 @@ public class ChatMessageController {
     }
 
     private Long getUserId() {
-        return 2L;
-    }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+        if (authentication == null || "anonymousUser".equals(authentication.getPrincipal())) {
+            return 0L;
+        }
+
+        return Long.parseLong(authentication.getName());
+    }
 }
