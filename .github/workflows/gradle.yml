@@ -27,8 +27,8 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
       with:
-        name: soongpal
-        path: build/libs/
+        name: soongpal-artifact
+        path: build/libs/*.jar
 
   deploy:
     needs: build
@@ -41,11 +41,10 @@ jobs:
     - name: Download build artifact
       uses: actions/download-artifact@v4
       with:
-        name: soongpal
-        path: ./artifact
+        name: soongpal-artifact
 
     - name: 불필요한 plain.jar 파일 삭제
-      run: rm artifact/*-plain.jar
+      run: rm *-plain.jar
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -66,16 +65,11 @@ jobs:
           --parameters 'commands=[
             "#!/bin/bash",
             "set -e",
-            "",
-            "# 설정 파일 생성",
             "mkdir -p /home/ubuntu/firebase",
             "echo \"${{ secrets.APPLICATION_YAML }}\" > /home/ubuntu/application.yaml",
             "echo \"${{ secrets.FIREBASE_KEY_JSON }}\" | base64 --decode > /home/ubuntu/firebase/soongpal2-65857-firebase-adminsdk-fbsvc-37398551d6.json",
-            "",
-            "# S3에서 새 버전의 JAR 파일 다운로드",
             "aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/soongpal-latest.jar /home/ubuntu/soongpal-0.0.1-SNAPSHOT.jar",
-            "",
-            "# 애플리케이션 재시작",
+            "chown ubuntu:ubuntu /home/ubuntu/soongpal-0.0.1-SNAPSHOT.jar",
             "sudo systemctl restart soongpal"
           ]' \
           --query "Command.CommandId" --output text
