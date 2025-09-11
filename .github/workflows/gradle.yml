@@ -34,6 +34,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions:
+      id-token: write
       contents: read
 
     steps:
@@ -46,29 +47,35 @@ jobs:
     - name: 불필요한 plain.jar 파일 삭제
       run: rm artifact/*-plain.jar
 
-    - name: Transfer JAR to EC2
-      uses: appleboy/scp-action@v0.1.4
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
       with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USERNAME }}
-        key: ${{ secrets.EC2_PRIVATE_KEY }}
-        source: "artifact/*.jar"
-        target: "/home/ubuntu"
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ap-northeast-2
 
-    - name: Execute final production deployment script
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USERNAME }}
-        key: ${{ secrets.EC2_PRIVATE_KEY }}
-        script: |
-          set -e
-          
-          mkdir -p /home/ubuntu/firebase
-          echo "${{ secrets.APPLICATION_YAML }}" > /home/ubuntu/application.yaml
-          echo "${{ secrets.FIREBASE_KEY_JSON }}" | base64 --decode > /home/ubuntu/firebase/soongpal2-65857-firebase-adminsdk-fbsvc-37398551d6.json
-  
-          rm -f /home/ubuntu/soongpal-0.0.1-SNAPSHOT.jar
-          mv /home/ubuntu/artifact/soongpal-0.0.1-SNAPSHOT.jar /home/ubuntu/soongpal-0.0.1-SNAPSHOT.jar
-          
-          sudo systemctl restart soongpal
+    - name: Upload JAR to S3
+      run: |
+        JAR_FILE=$(find . -name "*.jar")
+        aws s3 cp $JAR_FILE s3://${{ secrets.S3_BUCKET_NAME }}/soongpal-latest.jar
+
+    - name: Deploy to EC2 via SSM
+      run: |
+        aws ssm send-command \
+          --instance-ids ${{ secrets.EC2_INSTANCE_ID }} \
+          --document-name "AWS-RunShellScript" \
+          --parameters 'commands=[
+            "#!/bin/bash",
+            "set -e",
+            "",
+            "# 설정 파일 생성",
+            "mkdir -p /home/ubuntu/firebase",
+            "echo \"${{ secrets.APPLICATION_YAML }}\" > /home/ubuntu/application.yaml",
+            "echo \"${{ secrets.FIREBASE_KEY_JSON_BASE64 }}\" | base64 --decode > /home/ubuntu/firebase/soongpal2-65857-firebase-adminsdk-fbsvc-37398551d6.json",
+            "",
+            "# S3에서 새 버전의 JAR 파일 다운로드",
+            "aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/soongpal-latest.jar /home/ubuntu/soongpal-0.0.1-SNAPSHOT.jar",
+            "",
+            "# 애플리케이션 재시작",
+            "sudo systemctl restart soongpal"
+          ]' \
+          --query "Command.CommandId" --output text
