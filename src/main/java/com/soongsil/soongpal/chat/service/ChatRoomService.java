@@ -138,8 +138,8 @@ public class ChatRoomService {
                 .toList();
     }
 
-    public void joinChatRoom(Long boardId, Long userId) {
-        boardRepository.findById(boardId)
+    public ChatRoomResDto joinChatRoom(Long boardId, Long userId) {
+        Board findBoard = boardRepository.findById(boardId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
         ChatRoom findChatRoom = chatRoomRepository.findByBoardId(boardId)
@@ -163,10 +163,17 @@ public class ChatRoomService {
                 .build();
         chatRoomUserRepository.save(roomUser);
         findChatRoom.addUser(roomUser);
+
+        List<ChatRoomUserResDto> users = findChatRoom.getChatRoomUsers().stream()
+                .filter(user -> user.getRole().equals(ChatRole.OWNER))
+                .map(ChatRoomUserResDto::from)
+                .toList();
+
+        return ChatRoomResDto.of(findChatRoom, findBoard.getTitle(), findBoard.getTitle(), users, null);
     }
 
-    public void leaveChatRoom(Long boardId, Long userId) {
-        boardRepository.findById(boardId)
+    public ChatRoomResDto leaveChatRoom(Long boardId, Long userId) {
+        Board findBoard = boardRepository.findById(boardId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
         ChatRoom findChatRoom = chatRoomRepository.findByBoardId(boardId)
@@ -180,6 +187,8 @@ public class ChatRoomService {
                 .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_JOINED));
         chatRoomUserRepository.delete(roomUser);
         findChatRoom.removeUser(roomUser);
+
+        return ChatRoomResDto.of(findChatRoom, findBoard.getTitle(), findBoard.getTitle(), null, null);
     }
 
     public void deleteChatRoom(Long roomId, Long userId) {

@@ -85,11 +85,11 @@ public class ChatRoomController {
                     content = @Content(schema = @Schema(implementation = CommonResDto.class)))
     })
     @PostMapping("/{boardId}/join")
-    public ResponseEntity<CommonResDto<String>> joinChatRoom(
+    public ResponseEntity<CommonResDto<ChatRoomResDto>> joinChatRoom(
             @Parameter(description = "게시글 ID") @PathVariable Long boardId) {
         Long userId = getUserId();
-        chatRoomService.joinChatRoom(boardId, userId);
-        return new ResponseEntity<>(new CommonResDto<>("채팅방에 참가했습니다.", "성공"), HttpStatus.OK);
+        ChatRoomResDto dto = chatRoomService.joinChatRoom(boardId, userId);
+        return new ResponseEntity<>(new CommonResDto<>("채팅방에 참가했습니다.", dto), HttpStatus.OK);
     }
 
     @Operation(summary = "채팅방 나가기", description = "특정 채팅방에서 나갑니다.")
@@ -102,11 +102,11 @@ public class ChatRoomController {
                     content = @Content(schema = @Schema(implementation = CommonResDto.class)))
     })
     @DeleteMapping("/{boardId}/leave")
-    public ResponseEntity<CommonResDto<String>> leaveChatRoom(
+    public ResponseEntity<CommonResDto<ChatRoomResDto>> leaveChatRoom(
             @Parameter(description = "게시글 ID") @PathVariable Long boardId) {
         Long userId = getUserId();
-        chatRoomService.leaveChatRoom(boardId, userId);
-        return new ResponseEntity<>(new CommonResDto<>("채팅방을 나갔습니다.", "성공"), HttpStatus.OK);
+        ChatRoomResDto dto = chatRoomService.leaveChatRoom(boardId, userId);
+        return new ResponseEntity<>(new CommonResDto<>("채팅방을 나갔습니다.", dto), HttpStatus.OK);
     }
 
     @Operation(summary = "채팅방 삭제", description = "특정 채팅방을 삭제합니다. (방장만 가능)")
