@@ -43,6 +43,7 @@ public class ChatRoomService {
 
     public ChatRoomResDto createPrivateChatRoom(ChatRoomCreateReqDto dto, Long userId) {
         ChatRoom savedRoom = chatRoomRepository.save(ChatRoomCreateReqDto.toEntity(PRIVATE, dto.getBoardId()));
+
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.USER_NOT_FOUND));
         Board findBoard = boardRepository.findById(dto.getBoardId())

@@ -3,6 +3,7 @@ package com.soongsil.soongpal.chat.controller.rest;
 import com.soongsil.soongpal.chat.dto.ChatRoomCreateReqDto;
 import com.soongsil.soongpal.chat.dto.ChatRoomResDto;
 import com.soongsil.soongpal.chat.service.ChatRoomService;
+import com.soongsil.soongpal.common.dto.CommonErrorDto;
 import com.soongsil.soongpal.common.dto.CommonResDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -33,10 +34,8 @@ public class ChatRoomController {
 
     @Operation(summary = "채팅방 생성", description = "새로운 채팅방을 생성합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "채팅방 생성 성공",
-                    content = @Content(schema = @Schema(implementation = CommonResDto.class))),
-            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없습니다.",
-                    content = @Content(schema = @Schema(implementation = CommonResDto.class)))
+            @ApiResponse(responseCode = "200", description = "채팅방 생성 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 사용자 또는 게시글", content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
     })
     @PostMapping
     public ResponseEntity<CommonResDto<ChatRoomResDto>> createChatRoom(
@@ -49,12 +48,9 @@ public class ChatRoomController {
 
     @Operation(summary = "채팅방 조회", description = "특정 채팅방의 정보를 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "채팅방 조회 성공",
-                    content = @Content(schema = @Schema(implementation = CommonResDto.class))),
-            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없습니다.",
-                    content = @Content(schema = @Schema(implementation = CommonResDto.class))),
-            @ApiResponse(responseCode = "403", description = "해당 채팅방에 접근할 수 없습니다.",
-                    content = @Content(schema = @Schema(implementation = CommonResDto.class)))
+            @ApiResponse(responseCode = "200", description = "채팅방 조회 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+            @ApiResponse(responseCode = "403", description = "해당 채팅방에 접근할 수 없음", content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
     })
     @GetMapping("/{roomId}")
     public ResponseEntity<CommonResDto<ChatRoomResDto>> getChatRoom(
@@ -66,8 +62,10 @@ public class ChatRoomController {
     }
 
     @Operation(summary = "채팅방 목록 조회", description = "사용자가 참여한 채팅방 목록을 조회합니다.")
-    @ApiResponse(responseCode = "200", description = "채팅방 목록 조회 성공",
-            content = @Content(schema = @Schema(implementation = CommonResDto.class)))
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "채팅방 목록 조회 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
+    })
     @GetMapping
     public ResponseEntity<CommonResDto<List<ChatRoomResDto>>> getChatRooms() {
         Long userId = getUserId();
@@ -77,12 +75,10 @@ public class ChatRoomController {
 
     @Operation(summary = "채팅방 참가", description = "특정 채팅방에 참가합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "채팅방 참가 성공",
-                    content = @Content(schema = @Schema(implementation = CommonResDto.class))),
-            @ApiResponse(responseCode = "404", description = "채팅방 또는 사용자를 찾을 수 없습니다",
-                    content = @Content(schema = @Schema(implementation = CommonResDto.class))),
-            @ApiResponse(responseCode = "409", description = "이미 참가한 채팅방입니다.",
-                    content = @Content(schema = @Schema(implementation = CommonResDto.class)))
+            @ApiResponse(responseCode = "200", description = "채팅방 참가 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class))),
+            @ApiResponse(responseCode = "403", description = "일대일 채팅방에 접근할 수 없음", content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 채팅방, 게시글 또는 사용자", content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+            @ApiResponse(responseCode = "409", description = "이미 참가한 채팅방", content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
     })
     @PostMapping("/{boardId}/join")
     public ResponseEntity<CommonResDto<ChatRoomResDto>> joinChatRoom(
@@ -94,12 +90,10 @@ public class ChatRoomController {
 
     @Operation(summary = "채팅방 나가기", description = "특정 채팅방에서 나갑니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "채팅방 나가기 성공",
-                    content = @Content(schema = @Schema(implementation = CommonResDto.class))),
-            @ApiResponse(responseCode = "404", description = "채팅방이 존재하지 않습니다.",
-                    content = @Content(schema = @Schema(implementation = CommonResDto.class))),
-            @ApiResponse(responseCode = "400", description = "참가하지 않은 채팅방입니다.",
-                    content = @Content(schema = @Schema(implementation = CommonResDto.class)))
+            @ApiResponse(responseCode = "200", description = "채팅방 나가기 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class))),
+            @ApiResponse(responseCode = "400", description = "참가하지 않은 채팅방", content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+            @ApiResponse(responseCode = "403", description = "일대일 채팅방에 접근할 수 없음", content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 채팅방 또는 게시글", content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
     })
     @DeleteMapping("/{boardId}/leave")
     public ResponseEntity<CommonResDto<ChatRoomResDto>> leaveChatRoom(
@@ -111,14 +105,9 @@ public class ChatRoomController {
 
     @Operation(summary = "채팅방 삭제", description = "특정 채팅방을 삭제합니다. (방장만 가능)")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "채팅방 삭제 성공",
-                    content = @Content(schema = @Schema(implementation = CommonResDto.class))),
-            @ApiResponse(responseCode = "404", description = "채팅방이 존재하지 않습니다.",
-                    content = @Content(schema = @Schema(implementation = CommonResDto.class))),
-            @ApiResponse(responseCode = "403", description = "채팅방을 삭제할 권한이 없습니다.",
-                    content = @Content(schema = @Schema(implementation = CommonResDto.class))),
-            @ApiResponse(responseCode = "400", description = "참가하지 않은 채팅방입니다.",
-                    content = @Content(schema = @Schema(implementation = CommonResDto.class)))
+            @ApiResponse(responseCode = "200", description = "채팅방 삭제 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class))),
+            @ApiResponse(responseCode = "400", description = "참가하지 않은 채팅방", content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+            @ApiResponse(responseCode = "403", description = "채팅방을 삭제할 권한이 없음", content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
     })
     @DeleteMapping("/{roomId}")
     public ResponseEntity<CommonResDto<String>> deleteChatRoom(
