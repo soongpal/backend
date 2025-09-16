@@ -14,23 +14,24 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<CommonErrorDto> IllegalArgumentExceptionHandler (IllegalArgumentException e) {
-        log.error("[exceptionHandle] IllegalArgumentException", e);
-        return new ResponseEntity<>(new CommonErrorDto(e.getMessage()),HttpStatus.BAD_REQUEST);
-    }
-
     @ExceptionHandler(ChatException.class)
     public ResponseEntity<CommonErrorDto> handleChatException(ChatException e) {
         log.error("[exceptionHandle] ChatException", e);
         return new ResponseEntity<>(new CommonErrorDto(e.getMessage()),HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<CommonErrorDto> EntityNotFoundExceptionHandler (EntityNotFoundException e) {
-        log.error("[exceptionHandle] EntityNotFoundException", e);
-        return new ResponseEntity<>(new CommonErrorDto(e.getMessage()), HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(UserException.class)
+    public ResponseEntity<CommonErrorDto> handleUserException(UserException e) {
+        log.error("[exceptionHandle] UserException", e);
+        return new ResponseEntity<>(new CommonErrorDto(e.getMessage()), e.getErrorCode().getHttpStatus());
     }
+
+    @ExceptionHandler(BoardException.class)
+    public ResponseEntity<CommonErrorDto> handleBoardException(BoardException e) {
+        log.error("[exceptionHandle] BoardException", e);
+        return new ResponseEntity<>(new CommonErrorDto(e.getMessage()), e.getErrorCode().getHttpStatus());
+    }
+
 
     @ExceptionHandler(SecurityException.class)
     public ResponseEntity<CommonErrorDto> SecurityExceptionHandler (SecurityException e) {

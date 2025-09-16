@@ -3,6 +3,7 @@ package com.soongsil.soongpal.chat.controller.rest;
 import com.soongsil.soongpal.chat.dto.ChatMessageResDto;
 import com.soongsil.soongpal.chat.dto.ChatPageResDto;
 import com.soongsil.soongpal.chat.service.ChatMessageService;
+import com.soongsil.soongpal.common.dto.CommonErrorDto;
 import com.soongsil.soongpal.common.dto.CommonResDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,12 +30,8 @@ public class ChatMessageController {
 
     @Operation(summary = "채팅 메시지 조회", description = "특정 채팅방의 메시지 목록을 페이지별로 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "메시지 조회 성공",
-                    content = @Content(schema = @Schema(implementation = CommonResDto.class))),
-            @ApiResponse(responseCode = "404", description = "채팅방이 존재하지 않습니다.",
-                    content = @Content(schema = @Schema(implementation = CommonResDto.class))),
-            @ApiResponse(responseCode = "403", description = "채팅방에 접근할 수 없습니다.",
-                    content = @Content(schema = @Schema(implementation = CommonResDto.class)))
+            @ApiResponse(responseCode = "200", description = "메시지 조회 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class))),
+            @ApiResponse(responseCode = "403", description = "채팅방에 접근할 수 없습니다.", content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
     })
     @GetMapping
     public ResponseEntity<CommonResDto<ChatPageResDto<ChatMessageResDto>>> getMessages(

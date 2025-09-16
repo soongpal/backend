@@ -13,6 +13,8 @@ import com.soongsil.soongpal.chat.dto.ChatRoomUserResDto;
 import com.soongsil.soongpal.chat.repository.ChatMessageRepository;
 import com.soongsil.soongpal.chat.repository.ChatRoomRepository;
 import com.soongsil.soongpal.chat.repository.ChatRoomUserRepository;
+import com.soongsil.soongpal.common.exception.BoardErrorCode;
+import com.soongsil.soongpal.common.exception.BoardException;
 import com.soongsil.soongpal.common.exception.ChatErrorCode;
 import com.soongsil.soongpal.common.exception.ChatException;
 import com.soongsil.soongpal.user.domain.User;
@@ -41,10 +43,11 @@ public class ChatRoomService {
 
     public ChatRoomResDto createPrivateChatRoom(ChatRoomCreateReqDto dto, Long userId) {
         ChatRoom savedRoom = chatRoomRepository.save(ChatRoomCreateReqDto.toEntity(PRIVATE, dto.getBoardId()));
+
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.USER_NOT_FOUND));
         Board findBoard = boardRepository.findById(dto.getBoardId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
         User boardUser = userRepository.findById(findBoard.getUser().getId())
                 .orElseThrow(() -> new ChatException(ChatErrorCode.USER_NOT_FOUND));
 
@@ -99,7 +102,7 @@ public class ChatRoomService {
                 .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_ACCESS_DENIED));
 
         Board findBoard = boardRepository.findById(chatRoom.getBoardId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
 
         List<ChatRoomUserResDto> users = chatRoom.getChatRoomUsers().stream()
                 .map(ChatRoomUserResDto::from)
@@ -120,7 +123,7 @@ public class ChatRoomService {
         return chatRooms.stream()
                 .map(c -> {
                     Board findBoard = boardRepository.findById(c.getBoardId())
-                            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+                            .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
 
                     List<ChatRoomUserResDto> users = c.getChatRoomUsers().stream()
                             .map(ChatRoomUserResDto::from)
@@ -140,7 +143,7 @@ public class ChatRoomService {
 
     public ChatRoomResDto joinChatRoom(Long boardId, Long userId) {
         Board findBoard = boardRepository.findById(boardId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
 
         ChatRoom findChatRoom = chatRoomRepository.findByBoardId(boardId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_FOUND));
@@ -174,7 +177,7 @@ public class ChatRoomService {
 
     public ChatRoomResDto leaveChatRoom(Long boardId, Long userId) {
         Board findBoard = boardRepository.findById(boardId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
 
         ChatRoom findChatRoom = chatRoomRepository.findByBoardId(boardId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_FOUND));

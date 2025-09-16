@@ -4,6 +4,8 @@ import com.soongsil.soongpal.chat.dto.ChatMessageResDto;
 import com.soongsil.soongpal.chat.dto.ChatPageResDto;
 import com.soongsil.soongpal.chat.repository.ChatMessageRepository;
 import com.soongsil.soongpal.chat.repository.ChatRoomUserRepository;
+import com.soongsil.soongpal.common.exception.ChatErrorCode;
+import com.soongsil.soongpal.common.exception.ChatException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,7 +27,7 @@ public class ChatMessageService {
         Pageable pageable = PageRequest.of(page, 15, Sort.by("createdAt").descending());
         boolean hasAccess = chatRoomUserRepository.findByChatRoomIdAndUserId(roomId, userId).isPresent();
         if (!hasAccess) {
-            throw new IllegalArgumentException("접근 권한이 없는 채팅방입니다.");
+            throw new ChatException(ChatErrorCode.CHAT_ROOM_ACCESS_DENIED);
         }
 
         Page<ChatMessageResDto> messages = chatMessageRepository.findByChatRoomId(roomId, pageable)

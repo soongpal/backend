@@ -6,10 +6,13 @@ import com.soongsil.soongpal.board.repository.BoardImageRepository;
 import com.soongsil.soongpal.board.repository.BoardRepository;
 import com.soongsil.soongpal.board.repository.LikeRepository;
 import com.soongsil.soongpal.chat.service.ChatRoomService;
+import com.soongsil.soongpal.common.exception.BoardErrorCode;
+import com.soongsil.soongpal.common.exception.BoardException;
+import com.soongsil.soongpal.common.exception.UserErrorCode;
+import com.soongsil.soongpal.common.exception.UserException;
 import com.soongsil.soongpal.common.file.S3Uploader;
 import com.soongsil.soongpal.user.domain.User;
 import com.soongsil.soongpal.user.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,15 +41,15 @@ public class BoardService {
     private final BoardImageRepository boardImageRepository;
 
     public BoardResDto createBoard(BoardCreateReqDto boardCreateReqDto, List<MultipartFile> images, Long userId) {
-        if (images != null && images.size() > 5) {
-            throw new IllegalArgumentException("이미지는 최대 5개까지 업로드할 수 있습니다.");
+        if (images.size() > 5) {
+            throw new BoardException(BoardErrorCode.BOARD_FILE_UPLOAD_ERROR);
         }
 
         User findUser = getUser(userId);
         Board board = BoardCreateReqDto.toEntity(boardCreateReqDto, findUser);
         Board savedBoard = boardRepository.save(board);
 
-        if (images != null && !images.isEmpty()) {
+        if (!images.isEmpty()) {
             for (MultipartFile imageFile : images) {
                 String imageUrl = s3Uploader.uploadFile(imageFile, "board");
                 if (imageUrl != null) {
@@ -69,7 +72,7 @@ public class BoardService {
 
     public BoardResDto getBoardById(Long id, Long userId) {
         Board findBoard = boardRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
 
         Integer likeCount = likeRepository.countByBoardId(findBoard.getId());
         boolean liked = likeRepository.existsByBoardIdAndUserId(findBoard.getId(), userId);
@@ -80,11 +83,12 @@ public class BoardService {
     public BoardResDto updateBoard(Long id, @Valid BoardUpdateReqDto boardUpdateReqDto,
                                    List<MultipartFile> newImages, List<Long> deleteImageIds, Long userId) {
         User findUser = getUser(userId);
+
         Board findBoard = boardRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
 
         if (!findUser.equals(findBoard.getUser())) {
-            throw new SecurityException("수정 권한이 없습니다.");
+            throw new BoardException(BoardErrorCode.BOARD_UPDATE_DENIED);
         }
 
         int currentImageCount = findBoard.getBoardImages().size();
@@ -92,7 +96,7 @@ public class BoardService {
         int newImageCount = (newImages != null) ? newImages.size() : 0;
 
         if (currentImageCount - deleteImageCount + newImageCount > 5) {
-            throw new IllegalArgumentException("이미지는 최대 5개까지 업로드할 수 있습니다.");
+            throw new BoardException(BoardErrorCode.BOARD_FILE_UPLOAD_ERROR);
         }
 
         findBoard.update(
@@ -139,11 +143,12 @@ public class BoardService {
     @Transactional
     public BoardResDto updateBoardStatus(Long id, BoardStatusUpdateDto statusUpdateDto, Long userId) {
         User findUser = getUser(userId);
+
         Board findBoard = boardRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
 
         if (!findUser.equals(findBoard.getUser())) {
-            throw new SecurityException("수정 권한이 없습니다.");
+            throw new BoardException(BoardErrorCode.BOARD_UPDATE_DENIED);
         }
 
         findBoard.updateStatus(statusUpdateDto.getStatus());
@@ -156,10 +161,12 @@ public class BoardService {
     @Transactional
     public void deleteBoard(Long id, Long userId) {
         User findUser = getUser(userId);
+
         Board findBoard = boardRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
+
         if (!findUser.equals(findBoard.getUser())) {
-            throw new SecurityException("삭제 권한이 없습니다.");
+            throw new BoardException(BoardErrorCode.BOARD_DELETE_DENIED);
         }
 
         findBoard.softDeleteByUser();
@@ -193,12 +200,15 @@ public class BoardService {
 
     public LikeResDto addLike(Long boardId, Long userId) {
         User findUser = getUser(userId);
+
         Board findBoard = boardRepository.findById(boardId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
+
         if (likeRepository.existsByBoardIdAndUserId(findBoard.getId(), userId)) {
             int likeCount = likeRepository.countByBoardId(boardId);
             return LikeResDto.of(boardId, likeCount);
         }
+
         Like like = Like.builder()
                 .board(findBoard)
                 .user(findUser)
@@ -211,7 +221,8 @@ public class BoardService {
 
     public LikeResDto deleteLike(Long boardId, Long userId) {
         Like findLike = likeRepository.findByBoardIdAndUserId(boardId, userId)
-                .orElseThrow(() -> new EntityNotFoundException("좋아요 정보가 없습니다."));
+                .orElseThrow(() -> new BoardException(BoardErrorCode.LIKE_NOT_FOUND));
+
         likeRepository.delete(findLike);
 
         int likeCount = likeRepository.countByBoardId(boardId);
@@ -225,7 +236,7 @@ public class BoardService {
 
     private User getUser(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
     }
 
     @Transactional
