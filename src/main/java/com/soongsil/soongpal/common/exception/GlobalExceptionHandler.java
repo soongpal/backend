@@ -20,6 +20,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new CommonErrorDto(e.getMessage()),HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(UserException.class)
+    public ResponseEntity<CommonErrorDto> handleUserException(UserException e) {
+        log.error("[exceptionHandle] UserException", e);
+        return new ResponseEntity<>(new CommonErrorDto(e.getMessage()), e.getErrorCode().getHttpStatus());
+    }
+
     @ExceptionHandler(BoardException.class)
     public ResponseEntity<CommonErrorDto> handleBoardException(BoardException e) {
         log.error("[exceptionHandle] BoardException", e);
