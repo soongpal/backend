@@ -31,17 +31,17 @@ public class ChatService {
     private final FCMNotificationService fcmNotificationService;
 
 
-    public ChatMessageResDto saveMessage(Long roomId, ChatMessageReqDto dto) {
+    public ChatMessageResDto saveMessage(Long roomId, ChatMessageReqDto dto, Long userId) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("채팅방이 없습니다."));
 
-        User sender = userRepository.findById(dto.getSenderId())
+        User sender = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
 
         ChatMessage chatMessage = ChatMessageReqDto.toEntity(dto, sender, chatRoom);
         ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 
-        sendNotificationToOtherUsers(roomId, dto.getSenderId(), sender.getNickName(), dto.getContent());
+        sendNotificationToOtherUsers(roomId, userId, sender.getNickName(), dto.getContent());
 
         return ChatMessageResDto.from(savedMessage);
     }

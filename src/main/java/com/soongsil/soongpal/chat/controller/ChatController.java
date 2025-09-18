@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 
 
@@ -23,7 +25,18 @@ public class ChatController {
     @SendTo("/topic/{roomId}")
     public ChatMessageResDto sendMessage(@DestinationVariable Long roomId,@Valid ChatMessageReqDto dto) {
         log.info("메시지 도착 = {}", dto.getContent());
-        return chatService.saveMessage(roomId, dto);
+        Long userId = getUserId();
+        return chatService.saveMessage(roomId, dto, userId);
+    }
+
+    private Long getUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || "anonymousUser".equals(authentication.getPrincipal())) {
+            return 0L;
+        }
+
+        return Long.parseLong(authentication.getName());
     }
 
 }
