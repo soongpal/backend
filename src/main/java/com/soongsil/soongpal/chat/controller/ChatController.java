@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -23,19 +24,19 @@ public class ChatController {
 
     @MessageMapping("/{roomId}")
     @SendTo("/topic/{roomId}")
-    public ChatMessageResDto sendMessage(@DestinationVariable Long roomId,@Valid ChatMessageReqDto dto) {
+    public ChatMessageResDto sendMessage(@DestinationVariable Long roomId,@Valid ChatMessageReqDto dto, StompHeaderAccessor headerAccessor) {
         log.info("메시지 도착 = {}", dto.getContent());
-        Long userId = getUserId();
+        Long userId = getUserId(headerAccessor);
         return chatService.saveMessage(roomId, dto, userId);
     }
 
-    private Long getUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    private Long getUserId(StompHeaderAccessor headerAccessor) {
+        Authentication authentication = (Authentication) headerAccessor.getUser();
+        log.info("headerAccessor에서 가져온 authentication: ", authentication);
 
         if (authentication == null || "anonymousUser".equals(authentication.getPrincipal())) {
             return 0L;
         }
-
         return Long.parseLong(authentication.getName());
     }
 
