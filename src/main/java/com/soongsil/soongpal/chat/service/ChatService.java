@@ -8,15 +8,17 @@ import com.soongsil.soongpal.chat.dto.ChatMessageResDto;
 import com.soongsil.soongpal.chat.repository.ChatMessageRepository;
 import com.soongsil.soongpal.chat.repository.ChatRoomRepository;
 import com.soongsil.soongpal.chat.repository.ChatRoomUserRepository;
+import com.soongsil.soongpal.common.exception.ChatException;
 import com.soongsil.soongpal.notification.service.FCMNotificationService;
 import com.soongsil.soongpal.user.domain.User;
 import com.soongsil.soongpal.user.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static com.soongsil.soongpal.common.exception.ChatErrorCode.*;
 
 
 @Transactional
@@ -33,10 +35,13 @@ public class ChatService {
 
     public ChatMessageResDto saveMessage(Long roomId, ChatMessageReqDto dto, Long userId) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("채팅방이 없습니다."));
+                .orElseThrow(() -> new ChatException(CHAT_ROOM_NOT_FOUND));
 
         User sender = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new ChatException(USER_NOT_FOUND));
+
+        chatRoomUserRepository.findByChatRoomIdAndUserId(chatRoom.getId(), userId)
+                .orElseThrow(() -> new ChatException(CHAT_ROOM_ACCESS_DENIED));
 
         ChatMessage chatMessage = ChatMessageReqDto.toEntity(dto, sender, chatRoom);
         ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
