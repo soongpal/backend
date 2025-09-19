@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.soongsil.soongpal.chat.domain.ChatRoomType.GROUP;
 import static com.soongsil.soongpal.chat.domain.ChatRoomType.PRIVATE;
@@ -121,23 +122,23 @@ public class ChatRoomService {
     public List<ChatRoomResDto> getChatRoomsByUser(Long userId) {
         List<ChatRoom> chatRooms = chatRoomRepository.findChatRoomsByUserId(userId);
         return chatRooms.stream()
-                .map(c -> {
-                    Board findBoard = boardRepository.findById(c.getBoardId())
-                            .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
+                .map(c -> boardRepository.findById(c.getBoardId())
+                        .map(findBoard -> {
+                            List<ChatRoomUserResDto> users = c.getChatRoomUsers().stream()
+                                    .map(ChatRoomUserResDto::from)
+                                    .toList();
 
-                    List<ChatRoomUserResDto> users = c.getChatRoomUsers().stream()
-                            .map(ChatRoomUserResDto::from)
-                            .toList();
+                            ChatMessageResDto lastMessage = chatMessageRepository.findLastMessageByRoomId(c.getId())
+                                    .map(ChatMessageResDto::from)
+                                    .orElse(null);
 
-                    ChatMessageResDto lastMessage = chatMessageRepository.findLastMessageByRoomId(c.getId())
-                            .map(ChatMessageResDto::from)
-                            .orElse(null);
-
-                    if (findBoard.getCategory() == BoardCategory.USED) {
-                        return ChatRoomResDto.of(c, findBoard.getUser().getNickName(), findBoard.getTitle() , users, lastMessage);
-                    }
-                    return ChatRoomResDto.of(c, findBoard.getTitle(), findBoard.getTitle() , users, lastMessage);
-                })
+                            if (findBoard.getCategory() == BoardCategory.USED) {
+                                return ChatRoomResDto.of(c, findBoard.getUser().getNickName(), findBoard.getTitle(), users, lastMessage);
+                            }
+                            return ChatRoomResDto.of(c, findBoard.getTitle(), findBoard.getTitle(), users, lastMessage);
+                        })
+                )
+                .flatMap(Optional::stream)
                 .toList();
     }
 

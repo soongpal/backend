@@ -62,10 +62,7 @@ public class ChatRoomController {
     }
 
     @Operation(summary = "채팅방 목록 조회", description = "사용자가 참여한 채팅방 목록을 조회합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "채팅방 목록 조회 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class))),
-            @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
-    })
+    @ApiResponse(responseCode = "200", description = "채팅방 목록 조회 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class)))
     @GetMapping
     public ResponseEntity<CommonResDto<List<ChatRoomResDto>>> getChatRooms() {
         Long userId = getUserId();
