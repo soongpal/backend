@@ -3,6 +3,7 @@ package com.soongsil.soongpal.chat.service;
 import com.soongsil.soongpal.board.domain.Board;
 import com.soongsil.soongpal.board.domain.BoardCategory;
 import com.soongsil.soongpal.board.repository.BoardRepository;
+import com.soongsil.soongpal.chat.domain.ChatMessage;
 import com.soongsil.soongpal.chat.domain.ChatRole;
 import com.soongsil.soongpal.chat.domain.ChatRoom;
 import com.soongsil.soongpal.chat.domain.ChatRoomUser;
@@ -109,8 +110,8 @@ public class ChatRoomService {
                 .map(ChatRoomUserResDto::from)
                 .toList();
 
-        ChatMessageResDto lastMessage = chatMessageRepository.findLastMessageByRoomId(chatRoom.getId())
-                .map(ChatMessageResDto::from)
+        String lastMessage = chatMessageRepository.findLastMessageByRoomId(chatRoom.getId())
+                .map(ChatMessage::getContent)
                 .orElse(null);
 
         if (findBoard.getCategory() == BoardCategory.USED) {
@@ -128,8 +129,8 @@ public class ChatRoomService {
                                     .map(ChatRoomUserResDto::from)
                                     .toList();
 
-                            ChatMessageResDto lastMessage = chatMessageRepository.findLastMessageByRoomId(c.getId())
-                                    .map(ChatMessageResDto::from)
+                            String lastMessage = chatMessageRepository.findLastMessageByRoomId(c.getId())
+                                    .map(ChatMessage::getContent)
                                     .orElse(null);
 
                             if (findBoard.getCategory() == BoardCategory.USED) {

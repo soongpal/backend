@@ -23,11 +23,11 @@ public class ChatRoomResDto {
     private ChatRoomType type;
     private int userCount;
     private List<ChatRoomUserResDto> users;
-    private ChatMessageResDto lastMessage;
+    private String lastMessage;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static ChatRoomResDto of(ChatRoom chatRoom, String name, String productTitle, List<ChatRoomUserResDto> users, ChatMessageResDto lastMessage) {
+    public static ChatRoomResDto of(ChatRoom chatRoom, String name, String productTitle, List<ChatRoomUserResDto> users, String lastMessage) {
         return ChatRoomResDto.builder()
                 .id(chatRoom.getId())
                 .name(name)
