@@ -5,6 +5,7 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,7 +32,9 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .components(new Components().addSecuritySchemes("JWT", jwtScheme))
                 .addSecurityItem(securityRequirement)
-                .info(info);
+                .info(info)
+                .addServersItem(new Server().url("http://localhost:8080").description("로컬 서버"))
+                .addServersItem(new Server().url("https://api.soongpal.shop").description("IP 서버"));
     }
 
 }
