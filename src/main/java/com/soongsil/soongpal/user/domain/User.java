@@ -60,7 +60,7 @@ public class User extends BaseEntity {
 
     public void softDelete() {
         this.deletedAt = LocalDateTime.now();
-        this.nickName = "탈퇴한사용자" + this.id;
+        this.nickName = this.nickName + this.id + "(탈퇴)";
     }
 
 }
