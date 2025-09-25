@@ -40,6 +40,7 @@ public class BoardService {
     private final S3Uploader s3Uploader;
     private final BoardImageRepository boardImageRepository;
 
+    @Transactional
     public BoardResDto createBoard(BoardCreateReqDto boardCreateReqDto, List<MultipartFile> images, Long userId) {
         if (images.size() > 5) {
             throw new BoardException(BoardErrorCode.BOARD_FILE_UPLOAD_ERROR);
@@ -240,11 +241,12 @@ public class BoardService {
     }
 
     @Transactional
-    public void deleteAllBoardsByUser(User user) {
+    public void softDeleteAllBoardsByUser(User user) {
         List<Board> boardsToDelete = boardRepository.findAllByUser(user);
-        boardsToDelete.forEach(board -> {
+        for (Board board : boardsToDelete) {
             board.getBoardImages().forEach(image -> s3Uploader.deleteFile(image.getImageUrl()));
-            boardRepository.delete(board);
-        });
+            board.getBoardImages().clear();
+            board.softDeleteByUser();
+        }
     }
 }

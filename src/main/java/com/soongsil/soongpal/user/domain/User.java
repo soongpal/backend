@@ -6,11 +6,15 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Where;
+
+import java.time.LocalDateTime;
 
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Where(clause = "deleted_at IS NULL")
 public class User extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,6 +33,9 @@ public class User extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Column(name = "deleted_at") // <--- 2. deletedAt 필드 추가
+    private LocalDateTime deletedAt;
 
     @Builder
     public User(String kakaoId, String nickName, String email) {
@@ -49,6 +56,11 @@ public class User extends BaseEntity {
 
     public void updateFcmToken(String fcmToken) {
         this.fcmToken = fcmToken;
+    }
+
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
+        this.nickName = this.nickName + this.id + "(탈퇴)";
     }
 
 }

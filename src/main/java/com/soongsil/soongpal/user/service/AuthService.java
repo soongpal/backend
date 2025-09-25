@@ -64,9 +64,11 @@ public class AuthService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다. ID: " + userId));
 
         likeRepository.deleteAllByUser(user);
-        boardService.deleteAllBoardsByUser(user);
+        boardService.softDeleteAllBoardsByUser(user);
         unlinkKakaoAccount(user.getKakaoId());
-        userRepository.delete(user);
+
+        user.softDelete();
+        userRepository.save(user);
     }
 
     private void unlinkKakaoAccount(String kakaoId) {
