@@ -40,6 +40,7 @@ public class BoardService {
     private final S3Uploader s3Uploader;
     private final BoardImageRepository boardImageRepository;
 
+    @Transactional
     public BoardResDto createBoard(BoardCreateReqDto boardCreateReqDto, List<MultipartFile> images, Long userId) {
         if (images.size() > 5) {
             throw new BoardException(BoardErrorCode.BOARD_FILE_UPLOAD_ERROR);
