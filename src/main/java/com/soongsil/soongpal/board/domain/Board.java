@@ -26,10 +26,13 @@ public class Board extends BaseEntity {
     private String title;
 
     @Lob
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     private Integer price;
 
+    @Lob
+    @Column(columnDefinition = "TEXT")
     private String url;
 
     private String location;
