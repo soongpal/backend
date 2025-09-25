@@ -242,9 +242,10 @@ public class BoardService {
     @Transactional
     public void deleteAllBoardsByUser(User user) {
         List<Board> boardsToDelete = boardRepository.findAllByUser(user);
-        boardsToDelete.forEach(board -> {
+        for (Board board : boardsToDelete) {
             board.getBoardImages().forEach(image -> s3Uploader.deleteFile(image.getImageUrl()));
-            boardRepository.delete(board);
-        });
+            board.getBoardImages().clear();
+            board.softDeleteByUser();
+        }
     }
 }

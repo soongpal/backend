@@ -66,7 +66,9 @@ public class AuthService {
         likeRepository.deleteAllByUser(user);
         boardService.deleteAllBoardsByUser(user);
         unlinkKakaoAccount(user.getKakaoId());
-        userRepository.delete(user);
+
+        user.softDelete();
+        userRepository.save(user);
     }
 
     private void unlinkKakaoAccount(String kakaoId) {
