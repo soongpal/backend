@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
 import java.util.List;
 
 
@@ -42,6 +43,10 @@ public class BoardService {
 
     @Transactional
     public BoardResDto createBoard(BoardCreateReqDto boardCreateReqDto, List<MultipartFile> images, Long userId) {
+        if (images == null) {
+            images = Collections.emptyList();
+        }
+
         if (images.size() > 5) {
             throw new BoardException(BoardErrorCode.BOARD_FILE_UPLOAD_ERROR);
         }
