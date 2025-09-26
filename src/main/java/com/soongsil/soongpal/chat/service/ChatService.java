@@ -53,10 +53,10 @@ public class ChatService {
 
     private void sendNotificationToOtherUsers(Long roomId, Long senderId, String senderName, String message) {
         List<ChatRoomUser> otherUsers = chatRoomUserRepository.findByChatRoomIdAndUserIdNot(roomId, senderId);
-        
+
         for (ChatRoomUser chatRoomUser : otherUsers) {
             User user = chatRoomUser.getUser();
-            if (user.getFcmToken() != null && !user.getFcmToken().isEmpty()) {
+            if (user.getFcmToken() != null && !user.getFcmToken().isEmpty() && user.getDeletedAt() == null) {
                 fcmNotificationService.sendChatNotification(
                     user.getFcmToken(),
                     senderName,

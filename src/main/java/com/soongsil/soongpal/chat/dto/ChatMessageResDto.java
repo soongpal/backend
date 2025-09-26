@@ -21,10 +21,13 @@ public class ChatMessageResDto {
     private LocalDateTime createdAt;
 
     public static ChatMessageResDto from(ChatMessage message) {
+        String senderName = message.getSender().getDeletedAt() != null ?
+            "탈퇴한 회원" : message.getSender().getNickName();
+
         return ChatMessageResDto.builder()
                 .roomId(message.getChatRoom().getId())
                 .senderId(message.getSender().getId())
-                .senderName(message.getSender().getNickName())
+                .senderName(senderName)
                 .content(message.getContent())
                 .createdAt(message.getCreatedAt())
                 .build();

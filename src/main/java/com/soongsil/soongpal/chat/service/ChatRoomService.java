@@ -7,7 +7,6 @@ import com.soongsil.soongpal.chat.domain.ChatMessage;
 import com.soongsil.soongpal.chat.domain.ChatRole;
 import com.soongsil.soongpal.chat.domain.ChatRoom;
 import com.soongsil.soongpal.chat.domain.ChatRoomUser;
-import com.soongsil.soongpal.chat.dto.ChatMessageResDto;
 import com.soongsil.soongpal.chat.dto.ChatRoomCreateReqDto;
 import com.soongsil.soongpal.chat.dto.ChatRoomResDto;
 import com.soongsil.soongpal.chat.dto.ChatRoomUserResDto;
@@ -76,7 +75,8 @@ public class ChatRoomService {
                 .map(ChatRoomUserResDto::from)
                 .toList();
 
-        return ChatRoomResDto.of(savedRoom, boardUser.getNickName(), findBoard.getTitle(), users, null);
+        String ownerName = boardUser.getDeletedAt() != null ? "탈퇴한 회원" : boardUser.getNickName();
+        return ChatRoomResDto.of(savedRoom, ownerName, findBoard.getTitle(), users, null);
     }
 
     public ChatRoomResDto createGroupChatRoom(Long userId, String chatRoomName, Long boardId) {
@@ -115,7 +115,8 @@ public class ChatRoomService {
                 .orElse(null);
 
         if (findBoard.getCategory() == BoardCategory.USED) {
-            return ChatRoomResDto.of(chatRoom, findBoard.getUser().getNickName(), findBoard.getTitle() , users, lastMessage);
+            String ownerName = findBoard.getUser().getDeletedAt() != null ? "탈퇴한 회원" : findBoard.getUser().getNickName();
+            return ChatRoomResDto.of(chatRoom, ownerName, findBoard.getTitle() , users, lastMessage);
         }
         return ChatRoomResDto.of(chatRoom, findBoard.getTitle(), findBoard.getTitle() , users, lastMessage);
     }
@@ -134,7 +135,8 @@ public class ChatRoomService {
                                     .orElse(null);
 
                             if (findBoard.getCategory() == BoardCategory.USED) {
-                                return ChatRoomResDto.of(c, findBoard.getUser().getNickName(), findBoard.getTitle(), users, lastMessage);
+                                String ownerName = findBoard.getUser().getDeletedAt() != null ? "탈퇴한 회원" : findBoard.getUser().getNickName();
+                                return ChatRoomResDto.of(c, ownerName, findBoard.getTitle(), users, lastMessage);
                             }
                             return ChatRoomResDto.of(c, findBoard.getTitle(), findBoard.getTitle(), users, lastMessage);
                         })
@@ -206,7 +208,7 @@ public class ChatRoomService {
         if (roomUser.getRole().equals(ChatRole.MEMBER)) {
             throw new ChatException(ChatErrorCode.CHAT_ROOM_DELETE_DENIED);
         }
-        chatRoomRepository.delete(chatRoom);
+        chatRoom.softDelete();
     }
 
 }
