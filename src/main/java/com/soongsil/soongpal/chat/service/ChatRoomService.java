@@ -208,7 +208,7 @@ public class ChatRoomService {
         if (roomUser.getRole().equals(ChatRole.MEMBER)) {
             throw new ChatException(ChatErrorCode.CHAT_ROOM_DELETE_DENIED);
         }
-        chatRoomRepository.delete(chatRoom);
+        chatRoom.softDelete();
     }
 
 }

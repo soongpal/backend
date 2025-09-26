@@ -3,7 +3,9 @@ package com.soongsil.soongpal.chat.domain;
 import com.soongsil.soongpal.common.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Where(clause = "deleted_at IS NULL")
 @Table(name = "chat_rooms")
 public class ChatRoom extends BaseEntity {
 
@@ -25,6 +28,9 @@ public class ChatRoom extends BaseEntity {
     private ChatRoomType type;
 
     private Long boardId;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @Builder.Default
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -40,6 +46,10 @@ public class ChatRoom extends BaseEntity {
 
     public void removeUser(ChatRoomUser chatRoomUser) {
         this.chatRoomUsers.remove(chatRoomUser);
+    }
+
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
     }
 
 }
