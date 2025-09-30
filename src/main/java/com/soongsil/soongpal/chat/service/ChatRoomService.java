@@ -160,16 +160,14 @@ public class ChatRoomService {
                 .orElseThrow(() -> new ChatException(ChatErrorCode.USER_NOT_FOUND));
 
         boolean alreadyJoined = chatRoomUserRepository.findByChatRoomIdAndUserId(findChatRoom.getId(), userId).isPresent();
-        if (alreadyJoined) {
-            throw new ChatException(ChatErrorCode.CHAT_ROOM_ALREADY_JOINED);
+        if (!alreadyJoined) {
+            ChatRoomUser roomUser = ChatRoomUser.builder()
+                    .chatRoom(findChatRoom)
+                    .user(findUser)
+                    .build();
+            chatRoomUserRepository.save(roomUser);
+            findChatRoom.addUser(roomUser);
         }
-
-        ChatRoomUser roomUser = ChatRoomUser.builder()
-                .chatRoom(findChatRoom)
-                .user(findUser)
-                .build();
-        chatRoomUserRepository.save(roomUser);
-        findChatRoom.addUser(roomUser);
 
         List<ChatRoomUserResDto> users = findChatRoom.getChatRoomUsers().stream()
                 .filter(user -> user.getRole().equals(ChatRole.OWNER))

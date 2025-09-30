@@ -74,8 +74,7 @@ public class ChatRoomController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "채팅방 참가 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class))),
             @ApiResponse(responseCode = "403", description = "일대일 채팅방에 접근할 수 없음", content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
-            @ApiResponse(responseCode = "404", description = "존재하지 않는 채팅방, 게시글 또는 사용자", content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
-            @ApiResponse(responseCode = "409", description = "이미 참가한 채팅방", content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 채팅방, 게시글 또는 사용자", content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
     })
     @PostMapping("/{boardId}/join")
     public ResponseEntity<CommonResDto<ChatRoomResDto>> joinChatRoom(
