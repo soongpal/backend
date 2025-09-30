@@ -2,6 +2,8 @@ package com.soongsil.soongpal.user.service;
 
 import com.soongsil.soongpal.board.repository.LikeRepository;
 import com.soongsil.soongpal.board.service.BoardService;
+import com.soongsil.soongpal.common.exception.UserErrorCode;
+import com.soongsil.soongpal.common.exception.UserException;
 import com.soongsil.soongpal.user.domain.Role;
 import com.soongsil.soongpal.user.service.jwt.JwtTokenProvider;
 import com.soongsil.soongpal.user.domain.User;
@@ -36,12 +38,12 @@ public class AuthService {
     @Transactional
     public TokenPair registerNewUser(String tempToken, String nickname) {
         if (!jwtTokenProvider.validateToken(tempToken)) {
-            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+            throw new UserException(UserErrorCode.INVALID_USER_CREDENTIALS);
         }
         OAuthAttributes attributes = jwtTokenProvider.getAttributesFromTempToken(tempToken);
 
         if (userRepository.findByNickName(nickname).isPresent()) {
-            throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+            throw new UserException(UserErrorCode.USER_ALREADY_EXISTS);
         }
 
         User newUser = attributes.toEntity(nickname);
@@ -61,7 +63,7 @@ public class AuthService {
     @Transactional
     public void deleteUser(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다. ID: " + userId));
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
         likeRepository.deleteAllByUser(user);
         boardService.softDeleteAllBoardsByUser(user);
@@ -81,7 +83,7 @@ public class AuthService {
         webClient.post()
             .uri(unlinkUri)
             .header(HttpHeaders.AUTHORIZATION, "KakaoAK " + kakaoAdminKey)
-                .contentType(MediaType.valueOf("application/x-www-form-urlencoded"))
+            .contentType(MediaType.valueOf("application/x-www-form-urlencoded"))
             .body(BodyInserters.fromFormData(formData))
             .retrieve()
             .bodyToMono(String.class)
@@ -90,18 +92,18 @@ public class AuthService {
 
     public UserInfoResponseDto getUserInfo(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다. ID: " + userId));
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
         return new UserInfoResponseDto(user);
     }
 
     @Transactional
     public UserInfoResponseDto updateUserInfo(Long userId, UserUpdateRequestDto updateRequestDto) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다. ID: " + userId));
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
         String newNickname = updateRequestDto.getNickname();
         if (userRepository.findByNickName(newNickname).isPresent()) {
-            throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+            throw new UserException(UserErrorCode.USER_ALREADY_EXISTS);
         }
 
         user.updateNickname(newNickname);
@@ -112,14 +114,14 @@ public class AuthService {
     @Transactional
     public void updateRefreshToken(Long userId, String refreshToken) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다. ID: " + userId));
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
         user.updateRefreshToken(refreshToken);
     }
 
     @Transactional
     public void logout(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다. ID: " + userId));
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
         user.updateRefreshToken(null);
     }
@@ -127,23 +129,23 @@ public class AuthService {
     @Transactional
     public void updateFcmToken(Long userId, String fcmToken) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다. ID: " + userId));
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
         user.updateFcmToken(fcmToken);
     }
 
     public TokenRefreshResponseDto reissueTokens(String refreshToken) {
         if (!jwtTokenProvider.validateToken(refreshToken)) {
-            throw new IllegalArgumentException("유효하지 않은 리프레시 토큰입니다.");
+            throw new UserException(UserErrorCode.INVALID_USER_CREDENTIALS);
         }
 
         String userIdStr = jwtTokenProvider.getUserIdFromToken(refreshToken);
         Long userId = Long.parseLong(userIdStr);
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
         if (!refreshToken.equals(user.getRefreshToken())) {
-            throw new IllegalArgumentException("DB의 리프레시 토큰과 일치하지 않습니다.");
+            throw new UserException(UserErrorCode.INVALID_USER_CREDENTIALS);
         }
 
         Role userRole = user.getRole();
