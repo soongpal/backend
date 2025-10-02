@@ -177,12 +177,12 @@ public class ChatRoomService {
         return ChatRoomResDto.of(findChatRoom, findBoard.getTitle(), findBoard.getTitle(), users, null);
     }
 
-    public ChatRoomResDto leaveChatRoom(Long boardId, Long userId) {
-        Board findBoard = boardRepository.findById(boardId)
-                .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
-
-        ChatRoom findChatRoom = chatRoomRepository.findByBoardId(boardId)
+    public ChatRoomResDto leaveChatRoom(Long roomId, Long userId) {
+        ChatRoom findChatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_FOUND));
+
+        Board findBoard = boardRepository.findById(findChatRoom.getBoardId())
+                .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
 
         if (findChatRoom.getType() == PRIVATE) {
             throw new ChatException(ChatErrorCode.CHAT_ROOM_ACCESS_DENIED);

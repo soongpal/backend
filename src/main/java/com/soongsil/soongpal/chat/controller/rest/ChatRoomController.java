@@ -91,11 +91,11 @@ public class ChatRoomController {
             @ApiResponse(responseCode = "403", description = "일대일 채팅방에 접근할 수 없음", content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 채팅방 또는 게시글", content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
     })
-    @DeleteMapping("/{boardId}/leave")
+    @DeleteMapping("/{roomId}/leave")
     public ResponseEntity<CommonResDto<ChatRoomResDto>> leaveChatRoom(
-            @Parameter(description = "게시글 ID") @PathVariable Long boardId) {
+            @Parameter(description = "채팅방 ID") @PathVariable Long roomId) {
         Long userId = getUserId();
-        ChatRoomResDto dto = chatRoomService.leaveChatRoom(boardId, userId);
+        ChatRoomResDto dto = chatRoomService.leaveChatRoom(roomId, userId);
         return new ResponseEntity<>(new CommonResDto<>("채팅방을 나갔습니다.", dto), HttpStatus.OK);
     }
 
