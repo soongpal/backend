@@ -18,9 +18,10 @@ public class ChatMessageResDto {
     private Long senderId;
     private String senderName;
     private String content;
+    private Integer unreadCount;
     private LocalDateTime createdAt;
 
-    public static ChatMessageResDto from(ChatMessage message) {
+    public static ChatMessageResDto from(ChatMessage message, Integer unreadCount) {
         String senderName = message.getSender().getDeletedAt() != null ?
             "탈퇴한 회원" : message.getSender().getNickName();
 
@@ -29,6 +30,7 @@ public class ChatMessageResDto {
                 .senderId(message.getSender().getId())
                 .senderName(senderName)
                 .content(message.getContent())
+                .unreadCount(unreadCount)
                 .createdAt(message.getCreatedAt())
                 .build();
     }

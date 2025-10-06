@@ -1,5 +1,6 @@
 package com.soongsil.soongpal.chat.service;
 
+import com.soongsil.soongpal.chat.domain.ChatMessage;
 import com.soongsil.soongpal.chat.dto.ChatMessageResDto;
 import com.soongsil.soongpal.chat.dto.ChatPageResDto;
 import com.soongsil.soongpal.chat.repository.ChatMessageRepository;
@@ -31,7 +32,10 @@ public class ChatMessageService {
         }
 
         Page<ChatMessageResDto> messages = chatMessageRepository.findByChatRoomId(roomId, pageable)
-                .map(ChatMessageResDto::from);
+                .map((ChatMessage message) -> {
+                    Integer unreadCount = chatRoomUserRepository.countUnreadUsers(roomId, message.getId());
+                    return ChatMessageResDto.from(message, unreadCount);
+                });
         return  ChatPageResDto.from(messages);
     }
 

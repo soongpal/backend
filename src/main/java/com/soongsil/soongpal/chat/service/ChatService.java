@@ -47,8 +47,8 @@ public class ChatService {
         ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 
         sendNotificationToOtherUsers(roomId, userId, sender.getNickName(), dto.getContent());
-
-        return ChatMessageResDto.from(savedMessage);
+        Integer unreadCount = chatRoomUserRepository.countUnreadUsers(roomId, savedMessage.getId());
+        return ChatMessageResDto.from(savedMessage, unreadCount);
     }
 
     private void sendNotificationToOtherUsers(Long roomId, Long senderId, String senderName, String message) {
