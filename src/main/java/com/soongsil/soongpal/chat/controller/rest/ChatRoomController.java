@@ -113,6 +113,20 @@ public class ChatRoomController {
         return new ResponseEntity<>(new CommonResDto<>("채팅방이 삭제되었습니다.", "성공"), HttpStatus.OK);
     }
 
+    @Operation(summary = "메시지 읽음 처리", description = "특정 메시지까지 읽음 처리합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "읽음 처리 성공", content = @Content(schema = @Schema(implementation = CommonResDto.class))),
+            @ApiResponse(responseCode = "400", description = "참가하지 않은 채팅방", content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
+    })
+    @PatchMapping("/{roomId}/read")
+    public ResponseEntity<CommonResDto<String>> updateLastReadMessage(
+            @Parameter(description = "채팅방 ID") @PathVariable Long roomId,
+            @Parameter(description = "마지막으로 읽은 메시지 ID") @RequestParam Long messageId) {
+        Long userId = getUserId();
+        chatRoomService.updateLastReadMessage(roomId, userId, messageId);
+        return new ResponseEntity<>(new CommonResDto<>("읽음 처리되었습니다.", "성공"), HttpStatus.OK);
+    }
+
     private Long getUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

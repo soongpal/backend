@@ -34,4 +34,8 @@ public class ChatRoomUser extends BaseEntity {
     @Column(name = "last_read_message_id")
     private Long lastReadMessageId;
 
+    public void updateLastReadMessage(Long messageId) {
+        this.lastReadMessageId = messageId;
+    }
+
 }
