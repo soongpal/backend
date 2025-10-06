@@ -34,4 +34,7 @@ public class ChatMessage extends BaseEntity {
     @Builder.Default
     private MessageType messageType = MessageType.TEXT;
 
+    @Column(name = "last_read_message_id")
+    private Long lastReadMessageId;
+
 }
