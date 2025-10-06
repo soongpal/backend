@@ -43,14 +43,23 @@ public class ChatRoomService {
     private final ChatRoomUserRepository chatRoomUserRepository;
 
     public ChatRoomResDto createPrivateChatRoom(ChatRoomCreateReqDto dto, Long userId) {
-        ChatRoom savedRoom = chatRoomRepository.save(ChatRoomCreateReqDto.toEntity(PRIVATE, dto.getBoardId()));
-
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.USER_NOT_FOUND));
         Board findBoard = boardRepository.findById(dto.getBoardId())
                 .orElseThrow(() -> new BoardException(BoardErrorCode.BOARD_NOT_FOUND));
         User boardUser = userRepository.findById(findBoard.getUser().getId())
                 .orElseThrow(() -> new ChatException(ChatErrorCode.USER_NOT_FOUND));
+
+        Optional<ChatRoom> chatRoom = chatRoomRepository.existsByTwoUser(findUser.getId(), boardUser.getId());
+        if (chatRoom.isPresent()) {
+            List<ChatRoomUserResDto> users = chatRoom.get().getChatRoomUsers().stream()
+                    .map(ChatRoomUserResDto::from)
+                    .toList();
+            String ownerName = boardUser.getDeletedAt() != null ? "탈퇴한 회원" : boardUser.getNickName();
+            return ChatRoomResDto.of(chatRoom.get(), ownerName, findBoard.getTitle(), users, null);
+        }
+
+        ChatRoom savedRoom = chatRoomRepository.save(ChatRoomCreateReqDto.toEntity(PRIVATE, dto.getBoardId()));
 
         ChatRoomUser roomUser = ChatRoomUser.builder()
                 .chatRoom(savedRoom)

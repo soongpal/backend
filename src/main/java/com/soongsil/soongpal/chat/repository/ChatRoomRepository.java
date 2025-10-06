@@ -19,4 +19,13 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     
     Optional<ChatRoom> findByBoardId(Long boardId);
 
+    @Query("SELECT cr FROM ChatRoom cr " +
+            "JOIN cr.chatRoomUsers cru1 " +
+            "JOIN cr.chatRoomUsers cru2 " +
+            "WHERE cr.type = 'PRIVATE' " +
+            "AND cru1.user.id = :findUser " +
+            "AND cru2.user.id = :boardUser " +
+            "AND cru1.user.id <> cru2.user.id")
+    Optional<ChatRoom> existsByTwoUser(@Param("findUser") Long findUser, @Param("boardUser") Long boardUserId);
+
 }
