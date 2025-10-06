@@ -31,4 +31,7 @@ public class ChatRoomUser extends BaseEntity {
     @Builder.Default
     private ChatRole role = ChatRole.MEMBER;
 
+    @Column(name = "last_read_message_id")
+    private Long lastReadMessageId;
+
 }
