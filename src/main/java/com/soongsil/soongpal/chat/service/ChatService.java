@@ -39,6 +39,9 @@ public class ChatService {
 
         User sender = userRepository.findById(userId)
                 .orElseThrow(() -> new ChatException(USER_NOT_FOUND));
+        if (sender.getDeletedAt() != null) {
+            throw new ChatException(USER_NOT_FOUND);
+        }
 
         chatRoomUserRepository.findByChatRoomIdAndUserId(chatRoom.getId(), userId)
                 .orElseThrow(() -> new ChatException(CHAT_ROOM_ACCESS_DENIED));
