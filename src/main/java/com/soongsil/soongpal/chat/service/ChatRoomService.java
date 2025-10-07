@@ -55,8 +55,8 @@ public class ChatRoomService {
             List<ChatRoomUserResDto> users = chatRoom.get().getChatRoomUsers().stream()
                     .map(ChatRoomUserResDto::from)
                     .toList();
-            String ownerName = boardUser.getDeletedAt() != null ? "탈퇴한 회원" : boardUser.getNickName();
-            return ChatRoomResDto.of(chatRoom.get(), ownerName, findBoard.getTitle(), users, null);
+
+            return ChatRoomResDto.of(chatRoom.get(), boardUser.getNickName(), findBoard.getTitle(), users, null);
         }
 
         ChatRoom savedRoom = chatRoomRepository.save(ChatRoomCreateReqDto.toEntity(PRIVATE, dto.getBoardId()));
@@ -84,8 +84,7 @@ public class ChatRoomService {
                 .map(ChatRoomUserResDto::from)
                 .toList();
 
-        String ownerName = boardUser.getDeletedAt() != null ? "탈퇴한 회원" : boardUser.getNickName();
-        return ChatRoomResDto.of(savedRoom, ownerName, findBoard.getTitle(), users, null);
+        return ChatRoomResDto.of(savedRoom, boardUser.getNickName(), findBoard.getTitle(), users, null);
     }
 
     public ChatRoomResDto createGroupChatRoom(Long userId, String chatRoomName, Long boardId) {
@@ -124,8 +123,7 @@ public class ChatRoomService {
                 .orElse(null);
 
         if (findBoard.getCategory() == BoardCategory.USED) {
-            String ownerName = findBoard.getUser().getDeletedAt() != null ? "탈퇴한 회원" : findBoard.getUser().getNickName();
-            return ChatRoomResDto.of(chatRoom, ownerName, findBoard.getTitle() , users, lastMessage);
+            return ChatRoomResDto.of(chatRoom, findBoard.getUser().getNickName(), findBoard.getTitle() , users, lastMessage);
         }
         return ChatRoomResDto.of(chatRoom, findBoard.getTitle(), findBoard.getTitle() , users, lastMessage);
     }
@@ -144,8 +142,7 @@ public class ChatRoomService {
                                     .orElse(null);
 
                             if (findBoard.getCategory() == BoardCategory.USED) {
-                                String ownerName = findBoard.getUser().getDeletedAt() != null ? "탈퇴한 회원" : findBoard.getUser().getNickName();
-                                return ChatRoomResDto.of(c, ownerName, findBoard.getTitle(), users, lastMessage);
+                                return ChatRoomResDto.of(c, findBoard.getUser().getNickName(), findBoard.getTitle(), users, lastMessage);
                             }
                             return ChatRoomResDto.of(c, findBoard.getTitle(), findBoard.getTitle(), users, lastMessage);
                         })
