@@ -18,12 +18,9 @@ public class ChatRoomUserResDto {
     private String profileImage;
 
     public static ChatRoomUserResDto from(ChatRoomUser roomUser) {
-        User u = roomUser.getUser();
-        String userName = u.getDeletedAt() != null ? "탈퇴한 회원" : u.getNickName();
-
         return ChatRoomUserResDto.builder()
-                .userId(u.getId())
-                .userName(userName)
+                .userId(roomUser.getUser().getId())
+                .userName(roomUser.getUser().getNickName())
                 .build();
     }
 
