@@ -215,4 +215,11 @@ public class ChatRoomService {
         chatRoom.softDelete();
     }
 
+    public void updateLastReadMessage(Long roomId, Long userId, Long messageId) {
+        ChatRoomUser roomUser = chatRoomUserRepository.findByChatRoomIdAndUserId(roomId, userId)
+                .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_JOINED));
+
+        roomUser.updateLastReadMessage(messageId);
+    }
+
 }

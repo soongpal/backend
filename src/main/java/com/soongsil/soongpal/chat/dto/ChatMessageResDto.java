@@ -18,14 +18,16 @@ public class ChatMessageResDto {
     private Long senderId;
     private String senderName;
     private String content;
+    private Integer unreadCount;
     private LocalDateTime createdAt;
 
-    public static ChatMessageResDto from(ChatMessage message) {
+    public static ChatMessageResDto from(ChatMessage message, Integer unreadCount) {
         return ChatMessageResDto.builder()
                 .roomId(message.getChatRoom().getId())
                 .senderId(message.getSender().getId())
                 .senderName(message.getSender().getNickName())
                 .content(message.getContent())
+                .unreadCount(unreadCount)
                 .createdAt(message.getCreatedAt())
                 .build();
     }
