@@ -12,6 +12,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
@@ -19,11 +20,11 @@ jobs:
         distribution: 'temurin'
 
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+      uses: gradle/actions/setup-gradle@v4
 
     - name: Build with Gradle Wrapper
       run: ./gradlew build -x test
-      
+
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
       with:
@@ -43,7 +44,7 @@ jobs:
       with:
         name: soongpal-artifact
 
-    - name: 불필요한 plain.jar 파일 삭제
+    - name: Remove unnecessary plain JARs
       run: rm *-plain.jar
 
     - name: Configure AWS credentials
@@ -65,7 +66,6 @@ jobs:
         --parameters 'commands=[
           "#!/bin/bash",
           "set -e",
-          "mkdir -p /home/ubuntu/firebase",
           "echo ${{ secrets.APPLICATION_YAML }} | base64 --decode > /home/ubuntu/application.yaml",
           "echo ${{ secrets.FIREBASE_KEY_JSON }} | base64 --decode > /home/ubuntu/firebase/soongpal-firebase-adminsdk-fbsvc-2ece748ec4.json",
           "aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/soongpal-latest.jar /home/ubuntu/soongpal-0.0.1-SNAPSHOT.jar",
