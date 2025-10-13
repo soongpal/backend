@@ -62,9 +62,8 @@ jobs:
       run: |
         JAR_FILE=$(find . -name "*.jar")
         echo "Uploading $JAR_FILE to S3..."
-        aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/soongpal-latest.jar /home/ubuntu/soongpal-0.0.1-SNAPSHOT.jar
-  
-
+        aws s3 cp "$JAR_FILE" s3://${{ secrets.S3_BUCKET_NAME }}/soongpal-latest.jar
+        
     - name: Deploy to EC2 via SSM
       run: |
         aws ssm send-command \
