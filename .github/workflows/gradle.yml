@@ -20,10 +20,15 @@ jobs:
         distribution: 'temurin'
 
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4 
+      uses: gradle/actions/setup-gradle@v4
 
-    - name: Build with Gradle Wrapper
-      run: ./gradlew build -x test
+    - name: Ensure Gradle Wrapper is executable
+      run: chmod +x ./gradlew
+
+    - name: Build Spring Boot JAR
+      run: |
+        ./gradlew clean bootJar -x test
+        ls -l build/libs/
 
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
@@ -45,7 +50,7 @@ jobs:
         name: soongpal-artifact
 
     - name: Remove unnecessary plain JARs
-      run: rm *-plain.jar
+      run: rm -f *-plain.jar
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -56,6 +61,7 @@ jobs:
     - name: Upload JAR to S3
       run: |
         JAR_FILE=$(find . -name "*.jar")
+        echo "Uploading $JAR_FILE to S3..."
         aws s3 cp $JAR_FILE s3://${{ secrets.S3_BUCKET_NAME }}/soongpal-latest.jar
 
     - name: Deploy to EC2 via SSM
@@ -67,7 +73,7 @@ jobs:
           "#!/bin/bash",
           "set -e",
           "echo ${{ secrets.APPLICATION_YAML }} | base64 --decode > /home/ubuntu/application.yaml",
-          "echo ${{ secrets.FIREBASE_KEY_JSON }} | base64 --decode > /home/ubuntu/firebase/soongpal-firebase-adminsdk-fbsvc-2ece748ec4.json",
+          "echo ${{ secrets.FIREBASE_KEY_JSON }} | base64 --decode > /home/ubuntu/firebase/soongpal-firebase-adminsdk.json",
           "aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/soongpal-latest.jar /home/ubuntu/soongpal-0.0.1-SNAPSHOT.jar",
           "chown -R ubuntu:ubuntu /home/ubuntu/soongpal-0.0.1-SNAPSHOT.jar /home/ubuntu/application.yaml /home/ubuntu/firebase",
           "sudo systemctl restart soongpal"
