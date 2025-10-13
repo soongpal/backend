@@ -60,16 +60,16 @@ jobs:
     - name: Deploy to EC2 via SSM
       run: |
         aws ssm send-command \
-          --instance-ids ${{ secrets.EC2_INSTANCE_ID }} \
-          --document-name "AWS-RunShellScript" \
-          --parameters 'commands=[
-            "#!/bin/bash",
-            "set -e",
-            "mkdir -p /home/ubuntu/firebase",
-            "echo ${{ secrets.APPLICATION_YAML }} > /home/ubuntu/application.yaml",
-            "echo ${{ secrets.FIREBASE_KEY_JSON }} | base64 --decode > /home/ubuntu/firebase/soongpal-firebase-adminsdk-fbsvc-2ece748ec4.json",
-            "aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/soongpal-latest.jar /home/ubuntu/soongpal-0.0.1-SNAPSHOT.jar",
-            "chown ubuntu:ubuntu /home/ubuntu/soongpal-0.0.1-SNAPSHOT.jar",
-            "sudo systemctl restart soongpal"
-          ]' \
-          --query "Command.CommandId" --output text
+        --instance-ids ${{ secrets.EC2_INSTANCE_ID }} \
+        --document-name "AWS-RunShellScript" \
+        --parameters 'commands=[
+          "#!/bin/bash",
+          "set -e",
+          "mkdir -p /home/ubuntu/firebase",
+          "echo ${{ secrets.APPLICATION_YAML }} | base64 --decode > /home/ubuntu/application.yaml",
+          "echo ${{ secrets.FIREBASE_KEY_JSON }} | base64 --decode > /home/ubuntu/firebase/soongpal-firebase-adminsdk-fbsvc-2ece748ec4.json",
+          "aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/soongpal-latest.jar /home/ubuntu/soongpal-0.0.1-SNAPSHOT.jar",
+          "chown ubuntu:ubuntu /home/ubuntu/soongpal-0.0.1-SNAPSHOT.jar",
+          "sudo systemctl restart soongpal"
+        ]' \
+        --query "Command.CommandId" --output text
