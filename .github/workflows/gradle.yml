@@ -60,10 +60,13 @@ jobs:
 
     - name: Upload JAR to S3
       run: |
-        JAR_FILE=$(find . -name "*.jar")
-        echo "Uploading $JAR_FILE to S3..."
+        set -e
+        echo "Current directory: $(pwd)"
+        ls -R   # 디렉토리 구조 출력
+        JAR_FILE=$(find $GITHUB_WORKSPACE -name "*.jar")
+        echo "Found jar: $JAR_FILE"
         aws s3 cp "$JAR_FILE" s3://${{ secrets.S3_BUCKET_NAME }}/soongpal-latest.jar
-        
+
     - name: Deploy to EC2 via SSM
       run: |
         aws ssm send-command \
