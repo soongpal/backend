@@ -9,7 +9,6 @@ import com.soongsil.soongpal.chat.repository.ChatMessageRepository;
 import com.soongsil.soongpal.chat.repository.ChatRoomRepository;
 import com.soongsil.soongpal.chat.repository.ChatRoomUserRepository;
 import com.soongsil.soongpal.common.exception.ChatException;
-import com.soongsil.soongpal.notification.service.FCMNotificationService;
 import com.soongsil.soongpal.user.domain.User;
 import com.soongsil.soongpal.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

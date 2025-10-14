@@ -1,4 +1,4 @@
-package com.soongsil.soongpal.notification.service;
+package com.soongsil.soongpal.chat.service;
 
 import com.google.firebase.messaging.*;
 import lombok.RequiredArgsConstructor;
@@ -12,43 +12,6 @@ import org.springframework.stereotype.Service;
 public class FCMNotificationService {
 
     private final FirebaseMessaging firebaseMessaging;
-
-    public void sendNotificationToUser(String fcmToken, String title, String body) {
-        try {
-            Message message = Message.builder()
-                    .setNotification(Notification.builder()
-                            .setTitle(title)
-                            .setBody(body)
-                            .build())
-                    .putData("title", title)
-                    .putData("body", body)
-                    .putData("type", "general")
-                    .setWebpushConfig(WebpushConfig.builder()
-                            .setNotification(WebpushNotification.builder()
-                                    .setTitle(title)
-                                    .setBody(body)
-                                    .setIcon("/icon.png")
-                                    .build())
-                            .putHeader("Urgency", "high")
-                            .build())
-                    .setApnsConfig(ApnsConfig.builder()
-                            .setAps(Aps.builder()
-                                    .setAlert(ApsAlert.builder()
-                                            .setTitle(title)
-                                            .setBody(body)
-                                            .build())
-                                    .setSound("default")
-                                    .build())
-                            .build())
-                    .setToken(fcmToken)
-                    .build();
-
-            String response = firebaseMessaging.send(message);
-            log.info("FCM 알림 전송 성공: {}", response);
-        } catch (Exception e) {
-            log.error("FCM 알림 전송 실패: {}", e.getMessage(), e);
-        }
-    }
 
     public void sendChatNotification(String fcmToken, String senderName, String message, Long roomId) {
         try {
@@ -74,10 +37,6 @@ public class FCMNotificationService {
                             .build())
                     .setApnsConfig(ApnsConfig.builder()
                             .setAps(Aps.builder()
-                                    .setAlert(ApsAlert.builder()
-                                            .setTitle(title)
-                                            .setBody(message)
-                                            .build())
                                     .setSound("default")
                                     .build())
                             .build())
