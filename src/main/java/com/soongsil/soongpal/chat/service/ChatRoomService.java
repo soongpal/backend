@@ -56,7 +56,7 @@ public class ChatRoomService {
                     .map(ChatRoomUserResDto::from)
                     .toList();
 
-            return ChatRoomResDto.of(chatRoom.get(), boardUser.getNickName(), findBoard.getId(), findBoard.getTitle(), users, null);
+            return ChatRoomResDto.of(chatRoom.get(), boardUser.getNickName(), findBoard.getId(), findBoard.getTitle(), users, null, null);
         }
 
         ChatRoom savedRoom = chatRoomRepository.save(ChatRoomCreateReqDto.toEntity(PRIVATE, dto.getBoardId()));
@@ -84,7 +84,7 @@ public class ChatRoomService {
                 .map(ChatRoomUserResDto::from)
                 .toList();
 
-        return ChatRoomResDto.of(savedRoom, boardUser.getNickName(), findBoard.getId(), findBoard.getTitle(), users, null);
+        return ChatRoomResDto.of(savedRoom, boardUser.getNickName(), findBoard.getId(), findBoard.getTitle(), users, null, null);
     }
 
     public ChatRoomResDto createGroupChatRoom(Long userId, String chatRoomName, Long boardId) {
@@ -104,7 +104,7 @@ public class ChatRoomService {
                 .map(ChatRoomUserResDto::from)
                 .toList();
 
-        return ChatRoomResDto.of(savedRoom, chatRoomName, boardId, chatRoomName, users, null);
+        return ChatRoomResDto.of(savedRoom, chatRoomName, boardId, chatRoomName, users, null, null);
     }
 
     public ChatRoomResDto getChatRoom(Long roomId, Long userId) {
@@ -118,14 +118,13 @@ public class ChatRoomService {
                 .map(ChatRoomUserResDto::from)
                 .toList();
 
-        String lastMessage = chatMessageRepository.findLastMessageByRoomId(chatRoom.getId())
-                .map(ChatMessage::getContent)
+        ChatMessage lastMessage = chatMessageRepository.findLastMessageByRoomId(chatRoom.getId())
                 .orElse(null);
 
         if (findBoard.getCategory() == BoardCategory.USED) {
-            return ChatRoomResDto.of(chatRoom, findBoard.getUser().getNickName(),  findBoard.getId(), findBoard.getTitle() , users, lastMessage);
+            return ChatRoomResDto.of(chatRoom, findBoard.getUser().getNickName(),  findBoard.getId(), findBoard.getTitle() , users, lastMessage.getContent(), lastMessage.getCreatedAt());
         }
-        return ChatRoomResDto.of(chatRoom, findBoard.getTitle(),  findBoard.getId(),findBoard.getTitle() , users, lastMessage);
+        return ChatRoomResDto.of(chatRoom, findBoard.getTitle(),  findBoard.getId(),findBoard.getTitle() , users, lastMessage.getContent(), lastMessage.getCreatedAt());
     }
 
     public List<ChatRoomResDto> getChatRoomsByUser(Long userId) {
@@ -137,14 +136,13 @@ public class ChatRoomService {
                                     .map(ChatRoomUserResDto::from)
                                     .toList();
 
-                            String lastMessage = chatMessageRepository.findLastMessageByRoomId(c.getId())
-                                    .map(ChatMessage::getContent)
+                            ChatMessage lastMessage = chatMessageRepository.findLastMessageByRoomId(c.getId())
                                     .orElse(null);
 
                             if (findBoard.getCategory() == BoardCategory.USED) {
-                                return ChatRoomResDto.of(c, findBoard.getUser().getNickName(),  findBoard.getId(), findBoard.getTitle(), users, lastMessage);
+                                return ChatRoomResDto.of(c, findBoard.getUser().getNickName(),  findBoard.getId(), findBoard.getTitle(), users, lastMessage.getContent(), lastMessage.getCreatedAt());
                             }
-                            return ChatRoomResDto.of(c, findBoard.getTitle(),  findBoard.getId(), findBoard.getTitle(), users, lastMessage);
+                            return ChatRoomResDto.of(c, findBoard.getTitle(),  findBoard.getId(), findBoard.getTitle(), users, lastMessage.getContent(), lastMessage.getCreatedAt());
                         })
                 )
                 .flatMap(Optional::stream)
@@ -180,7 +178,7 @@ public class ChatRoomService {
                 .map(ChatRoomUserResDto::from)
                 .toList();
 
-        return ChatRoomResDto.of(findChatRoom, findBoard.getTitle(),  findBoard.getId(), findBoard.getTitle(), users, null);
+        return ChatRoomResDto.of(findChatRoom, findBoard.getTitle(),  findBoard.getId(), findBoard.getTitle(), users, null, null);
     }
 
     public ChatRoomResDto leaveChatRoom(Long roomId, Long userId) {
@@ -199,7 +197,7 @@ public class ChatRoomService {
         chatRoomUserRepository.delete(roomUser);
         findChatRoom.removeUser(roomUser);
 
-        return ChatRoomResDto.of(findChatRoom, findBoard.getTitle(),  findBoard.getId(), findBoard.getTitle(), null, null);
+        return ChatRoomResDto.of(findChatRoom, findBoard.getTitle(),  findBoard.getId(), findBoard.getTitle(), null, null, null);
     }
 
     public void deleteChatRoom(Long roomId, Long userId) {

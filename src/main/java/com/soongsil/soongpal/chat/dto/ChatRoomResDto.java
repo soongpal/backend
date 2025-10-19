@@ -1,11 +1,13 @@
 package com.soongsil.soongpal.chat.dto;
 
+import com.soongsil.soongpal.chat.domain.ChatMessage;
 import com.soongsil.soongpal.chat.domain.ChatRoom;
 import com.soongsil.soongpal.chat.domain.ChatRoomType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,10 +27,9 @@ public class ChatRoomResDto {
     private int userCount;
     private List<ChatRoomUserResDto> users;
     private String lastMessage;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private LocalDateTime lastMessageTime;
 
-    public static ChatRoomResDto of(ChatRoom chatRoom, String name, Long boardId , String productTitle, List<ChatRoomUserResDto> users, String lastMessage) {
+    public static ChatRoomResDto of(ChatRoom chatRoom, String name, Long boardId , String productTitle, List<ChatRoomUserResDto> users, String lastMessage, LocalDateTime lastMessageTime) {
         return ChatRoomResDto.builder()
                 .id(chatRoom.getId())
                 .name(name)
@@ -38,8 +39,7 @@ public class ChatRoomResDto {
                 .userCount(chatRoom.getChatRoomUsers().size())
                 .users(users)
                 .lastMessage(lastMessage)
-                .createdAt(chatRoom.getCreatedAt())
-                .updatedAt(chatRoom.getUpdatedAt())
+                .lastMessageTime(lastMessageTime)
                 .build();
     }
 
