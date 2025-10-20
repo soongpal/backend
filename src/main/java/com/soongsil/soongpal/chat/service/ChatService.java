@@ -3,6 +3,7 @@ package com.soongsil.soongpal.chat.service;
 import com.soongsil.soongpal.chat.domain.ChatMessage;
 import com.soongsil.soongpal.chat.domain.ChatRoom;
 import com.soongsil.soongpal.chat.domain.ChatRoomUser;
+import com.soongsil.soongpal.chat.domain.fcm.DeviceToken;
 import com.soongsil.soongpal.chat.dto.ChatMessageReqDto;
 import com.soongsil.soongpal.chat.dto.ChatMessageResDto;
 import com.soongsil.soongpal.chat.repository.ChatMessageRepository;
@@ -58,13 +59,14 @@ public class ChatService {
 
         for (ChatRoomUser chatRoomUser : otherUsers) {
             User user = chatRoomUser.getUser();
-            if (user.getFcmToken() != null && !user.getFcmToken().isEmpty() && user.getDeletedAt() == null) {
-                fcmNotificationService.sendChatNotification(
-                    user.getFcmToken(),
-                    senderName,
-                    message,
-                    roomId
-                );
+            if (user.getDeviceTokens() != null && !user.getDeviceTokens().isEmpty() && user.getDeletedAt() == null) {
+                for (DeviceToken token : user.getDeviceTokens()) {
+                    if (token.isNotificationEnabled()) {
+                        fcmNotificationService.sendChatNotification(
+                                token.getToken(), senderName, message, roomId
+                        );
+                    }
+                }
             }
         }
     }

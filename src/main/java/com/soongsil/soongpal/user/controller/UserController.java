@@ -62,14 +62,4 @@ public class UserController {
         return ResponseEntity.ok("로그아웃되었습니다.");
     }
 
-    @Operation(summary = "FCM 토큰 업데이트", description = "사용자의 FCM 토큰을 업데이트합니다.")
-    @PatchMapping("/fcm-token")
-    public ResponseEntity<String> updateFcmToken(@RequestParam String fcmToken) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long userId = Long.parseLong(authentication.getName());
-
-        authService.updateFcmToken(userId, fcmToken);
-
-        return ResponseEntity.ok("FCM 토큰이 업데이트되었습니다.");
-    }
 }

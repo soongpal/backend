@@ -1,5 +1,6 @@
 package com.soongsil.soongpal.user.domain;
 
+import com.soongsil.soongpal.chat.domain.fcm.DeviceToken;
 import com.soongsil.soongpal.common.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -9,6 +10,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Getter
@@ -28,8 +31,9 @@ public class User extends BaseEntity {
     private String email;
 
     private String refreshToken;
-    private String fcmToken;
-   
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DeviceToken> deviceTokens = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -53,9 +57,12 @@ public class User extends BaseEntity {
         this.refreshToken = refreshToken;
     }
 
+    public void addDeviceToken(DeviceToken deviceToken) {
+        this.deviceTokens.add(deviceToken);
+    }
 
-    public void updateFcmToken(String fcmToken) {
-        this.fcmToken = fcmToken;
+    public void removeDeviceToken(DeviceToken deviceToken) {
+        this.deviceTokens.remove(deviceToken);
     }
 
     public void softDelete() {
