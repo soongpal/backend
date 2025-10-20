@@ -2,6 +2,7 @@ package com.soongsil.soongpal.user.service;
 
 import com.soongsil.soongpal.board.repository.LikeRepository;
 import com.soongsil.soongpal.board.service.BoardService;
+import com.soongsil.soongpal.chat.repository.DeviceTokenRepository;
 import com.soongsil.soongpal.common.exception.UserErrorCode;
 import com.soongsil.soongpal.common.exception.UserException;
 import com.soongsil.soongpal.user.domain.Role;
@@ -12,7 +13,6 @@ import com.soongsil.soongpal.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -30,6 +30,7 @@ public class AuthService {
     private final LikeRepository likeRepository;
     private final BoardService boardService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final DeviceTokenRepository deviceTokenRepository;
     private final WebClient webClient = WebClient.create();
 
     @Value("${kakao-admin.key}")
@@ -68,7 +69,7 @@ public class AuthService {
         likeRepository.deleteAllByUser(user);
         boardService.softDeleteAllBoardsByUser(user);
         unlinkKakaoAccount(user.getKakaoId());
-
+        user.getDeviceTokens().clear();
         user.softDelete();
         userRepository.save(user);
     }
@@ -124,13 +125,6 @@ public class AuthService {
                 .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
         user.updateRefreshToken(null);
-    }
-
-    @Transactional
-    public void updateFcmToken(Long userId, String fcmToken) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
-        user.updateFcmToken(fcmToken);
     }
 
     public TokenRefreshResponseDto reissueTokens(String refreshToken) {
