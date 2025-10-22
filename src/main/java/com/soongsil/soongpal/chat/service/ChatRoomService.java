@@ -122,7 +122,7 @@ public class ChatRoomService {
         ChatMessage lastMessage = chatMessageRepository.findLastMessageByRoomId(chatRoom.getId())
                 .orElse(null);
         String lastContent = lastMessage != null ? lastMessage.getContent() : null;
-        LocalDateTime lastCreatedAt = lastMessage != null ? lastMessage.getCreatedAt() : null;
+        LocalDateTime lastCreatedAt = lastMessage != null ? lastMessage.getCreatedAt() : chatRoom.getCreatedAt();
 
         if (findBoard.getCategory() == BoardCategory.USED) {
             return ChatRoomResDto.of(chatRoom, findBoard.getUser().getNickName(), findBoard.getId(), findBoard.getTitle(), users, lastContent, lastCreatedAt);
@@ -142,7 +142,7 @@ public class ChatRoomService {
                             ChatMessage lastMessage = chatMessageRepository.findLastMessageByRoomId(c.getId())
                                     .orElse(null);
                             String lastContent = lastMessage != null ? lastMessage.getContent() : null;
-                            LocalDateTime lastCreatedAt = lastMessage != null ? lastMessage.getCreatedAt() : null;
+                            LocalDateTime lastCreatedAt = lastMessage != null ? lastMessage.getCreatedAt() : c.getCreatedAt();
 
                             if (findBoard.getCategory() == BoardCategory.USED) {
                                 return ChatRoomResDto.of(c, findBoard.getUser().getNickName(),  findBoard.getId(), findBoard.getTitle(), users, lastContent, lastCreatedAt);
