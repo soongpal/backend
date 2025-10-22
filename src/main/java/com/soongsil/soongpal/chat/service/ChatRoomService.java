@@ -65,7 +65,7 @@ public class ChatRoomService {
         ChatRoomUser roomUser = ChatRoomUser.builder()
                 .chatRoom(savedRoom)
                 .user(findUser)
-                .role(ChatRole.OWNER)
+                .role(ChatRole.MEMBER)
                 .build();
 
         ChatRoomUser roomOwner = ChatRoomUser.builder()
@@ -199,6 +199,10 @@ public class ChatRoomService {
 
         ChatRoomUser roomUser = chatRoomUserRepository.findByChatRoomIdAndUserId(findChatRoom.getId(), userId)
                 .orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_JOINED));
+        if (roomUser.getRole() == ChatRole.OWNER) {
+            throw new ChatException(ChatErrorCode.CHAT_ROOM_OUT_DENIED);
+        }
+
         chatRoomUserRepository.delete(roomUser);
         findChatRoom.removeUser(roomUser);
 
