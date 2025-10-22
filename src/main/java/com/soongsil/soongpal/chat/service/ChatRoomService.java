@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -138,11 +139,13 @@ public class ChatRoomService {
 
                             ChatMessage lastMessage = chatMessageRepository.findLastMessageByRoomId(c.getId())
                                     .orElse(null);
+                            String lastContent = lastMessage != null ? lastMessage.getContent() : "";
+                            LocalDateTime lastCreatedAt = lastMessage != null ? lastMessage.getCreatedAt() : null;
 
                             if (findBoard.getCategory() == BoardCategory.USED) {
-                                return ChatRoomResDto.of(c, findBoard.getUser().getNickName(),  findBoard.getId(), findBoard.getTitle(), users, lastMessage.getContent(), lastMessage.getCreatedAt());
+                                return ChatRoomResDto.of(c, findBoard.getUser().getNickName(),  findBoard.getId(), findBoard.getTitle(), users, lastContent, lastCreatedAt);
                             }
-                            return ChatRoomResDto.of(c, findBoard.getTitle(),  findBoard.getId(), findBoard.getTitle(), users, lastMessage.getContent(), lastMessage.getCreatedAt());
+                            return ChatRoomResDto.of(c, findBoard.getTitle(),  findBoard.getId(), findBoard.getTitle(), users, lastContent, lastCreatedAt);
                         })
                 )
                 .flatMap(Optional::stream)
