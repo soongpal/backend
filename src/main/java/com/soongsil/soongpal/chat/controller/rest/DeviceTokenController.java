@@ -48,4 +48,14 @@ public class DeviceTokenController {
         return ResponseEntity.ok("알림이 꺼졌습니다.");
     }
 
+    @Operation(summary = "알림 여부", description = "특정 디바이스의 알림을 활성화여부를 조회합니다..")
+    @GetMapping
+    public ResponseEntity<String> getNotification(@RequestParam String fcmToken) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = Long.parseLong(authentication.getName());
+
+        boolean notification = deviceTokenService.getNotification(userId, fcmToken);
+        return ResponseEntity.ok(String.valueOf(notification));
+    }
+
 }

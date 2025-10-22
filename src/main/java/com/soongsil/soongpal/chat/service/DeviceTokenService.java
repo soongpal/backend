@@ -57,4 +57,13 @@ public class DeviceTokenService {
         deviceToken.disableNotification();
     }
 
+    public boolean getNotification(Long userId, String fcmToken) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+        DeviceToken deviceToken = deviceTokenRepository.findByUserAndToken(user, fcmToken)
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+
+        return deviceToken.isNotificationEnabled();
+    }
+
 }
