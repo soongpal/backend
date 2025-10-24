@@ -50,6 +50,7 @@ public class ChatRoom extends BaseEntity {
 
     public void softDelete() {
         this.deletedAt = LocalDateTime.now();
+        this.chatRoomUsers.forEach(ChatRoomUser::softDelete);
     }
 
 }

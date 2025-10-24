@@ -2,6 +2,8 @@ package com.soongsil.soongpal.user.service;
 
 import com.soongsil.soongpal.board.repository.LikeRepository;
 import com.soongsil.soongpal.board.service.BoardService;
+import com.soongsil.soongpal.chat.domain.ChatRoom;
+import com.soongsil.soongpal.chat.repository.ChatRoomRepository;
 import com.soongsil.soongpal.chat.repository.DeviceTokenRepository;
 import com.soongsil.soongpal.common.exception.UserErrorCode;
 import com.soongsil.soongpal.common.exception.UserException;
@@ -21,6 +23,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +36,7 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final DeviceTokenRepository deviceTokenRepository;
     private final WebClient webClient = WebClient.create();
+    private final ChatRoomRepository chatRoomRepository;
 
     @Value("${kakao-admin.key}")
     private String kakaoAdminKey;
@@ -67,6 +72,7 @@ public class AuthService {
                 .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
         likeRepository.deleteAllByUser(user);
+        chatRoomRepository.findChatRoomsByUserId(userId).forEach(ChatRoom::softDelete);
         boardService.softDeleteAllBoardsByUser(user);
         unlinkKakaoAccount(user.getKakaoId());
         user.getDeviceTokens().clear();

@@ -4,6 +4,9 @@ import com.soongsil.soongpal.common.domain.BaseEntity;
 import com.soongsil.soongpal.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
+
+import java.time.LocalDateTime;
 
 
 @Builder
@@ -11,6 +14,7 @@ import lombok.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Where(clause = "deleted_at IS NULL")
 @Table(name = "chat_room_users")
 public class ChatRoomUser extends BaseEntity {
 
@@ -34,8 +38,15 @@ public class ChatRoomUser extends BaseEntity {
     @Column(name = "last_read_message_id")
     private Long lastReadMessageId;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     public void updateLastReadMessage(Long messageId) {
         this.lastReadMessageId = messageId;
+    }
+
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
     }
 
 }
